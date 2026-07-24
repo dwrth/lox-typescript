@@ -41,6 +41,27 @@ export default class Scanner {
    case '}':
     this.addToken(TokenType.RIGHT_BRACE);
     break;
+   case ',':
+    this.addToken(TokenType.COMMA);
+    break;
+   case '.':
+    this.addToken(TokenType.DOT);
+    break;
+   case '-':
+    this.addToken(TokenType.MINUS);
+    break;
+   case '+':
+    this.addToken(TokenType.PLUS);
+    break;
+   case ';':
+    this.addToken(TokenType.SEMICOLON);
+    break;
+   case '\/':
+    this.addToken(TokenType.SLASH);
+    break;
+   case '*':
+    this.addToken(TokenType.STAR);
+    break;
    default:
     break;
   }

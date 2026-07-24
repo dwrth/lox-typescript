@@ -4,6 +4,14 @@ export enum TokenType {
  LEFT_BRACE = 'LEFT_BRACE',
  RIGHT_BRACE = 'RIGHT_BRACE',
  EOF = 'EOF',
+
+ COMMA = 'COMMA',
+ DOT = 'DOT',
+ MINUS = 'MINUS',
+ PLUS = 'PLUS',
+ SEMICOLON = 'SEMICOLON',
+ SLASH = 'SLASH',
+ STAR = 'STAR',
 }
 
 export class Token {
