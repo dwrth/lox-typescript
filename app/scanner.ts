@@ -35,8 +35,13 @@ export default class Scanner {
    case ')':
     this.addToken(TokenType.RIGHT_PAREN);
     break;
+   case '{':
+    this.addToken(TokenType.LEFT_BRACE);
+    break;
+   case '}':
+    this.addToken(TokenType.RIGHT_BRACE);
+    break;
    default:
-    console.error(this.line, 'Unexpected character.');
     break;
   }
  }
