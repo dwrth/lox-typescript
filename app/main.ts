@@ -1,4 +1,6 @@
 import fs from 'fs';
+import type { Token } from './token';
+import Scanner from './scanner';
 
 const args: string[] = process.argv.slice(2); // Skip the first two arguments (node path and script path)
 
@@ -22,7 +24,10 @@ const filename: string = args[1];
 const fileContent: string = fs.readFileSync(filename, 'utf8');
 
 if (fileContent.length !== 0) {
- throw new Error('Scanner not implemented');
+ const scanner = new Scanner(fileContent);
+ scanner.scanTokens();
+
+ scanner.printTokenList();
 } else {
  console.log('EOF  null');
 }
