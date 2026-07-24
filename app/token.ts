@@ -1,7 +1,7 @@
 export enum TokenType {
- LEFT_PAREN,
- RIGHT_PAREN,
- EOF,
+ LEFT_PAREN = 'LEFT_PAREN',
+ RIGHT_PAREN = 'RIGHT_PAREN',
+ EOF = 'EOF',
 }
 
 export class Token {
