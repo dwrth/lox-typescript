@@ -117,6 +117,13 @@ export default class Scanner {
     this.advance();
    }
   }
+
+  this.addToken(
+   TokenType.NUMBER,
+   Number.parseFloat(this.source.substring(this.start, this.current)).toFixed(
+    1,
+   ),
+  );
  }
 
  private isDigit(c: string) {
