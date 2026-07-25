@@ -85,6 +85,13 @@ export default class Scanner {
      this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
     );
     break;
+   case ' ':
+   case '\r':
+   case '\t':
+    break;
+   case '\n':
+    this.line++;
+    break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
     this.hasError = true;
