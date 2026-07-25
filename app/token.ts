@@ -18,6 +18,11 @@ export enum TokenType {
 
  BANG = 'BANG',
  BANG_EQUAL = 'BANG_EQUAL',
+
+ LESS = 'LESS',
+ LESS_EQUAL = 'LESS_EQUAL',
+ GREATER = 'GREATER',
+ GREATER_EQUAL = 'GREATER_EQUAL',
 }
 
 export class Token {

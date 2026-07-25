@@ -71,6 +71,14 @@ export default class Scanner {
    case '!':
     this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
     break;
+   case '<':
+    this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+    break;
+   case '>':
+    this.addToken(
+     this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
+    );
+    break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
     this.hasError = true;
