@@ -42,10 +42,6 @@ export default class Scanner {
   return this.tokens;
  }
 
- private isAtEnd() {
-  return this.current >= this.source.length;
- }
-
  private scanToken() {
   const c = this.advance();
 
@@ -77,15 +73,6 @@ export default class Scanner {
    case ';':
     this.addToken(TokenType.SEMICOLON);
     break;
-   case '\/':
-    if (this.match('\/')) {
-     while (this.peek() != '\n' && !this.isAtEnd()) {
-      this.advance();
-     }
-    } else {
-     this.addToken(TokenType.SLASH);
-    }
-    break;
    case '*':
     this.addToken(TokenType.STAR);
     break;
@@ -102,6 +89,15 @@ export default class Scanner {
     this.addToken(
      this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
     );
+    break;
+   case '\/':
+    if (this.match('\/')) {
+     while (this.peek() != '\n' && !this.isAtEnd()) {
+      this.advance();
+     }
+    } else {
+     this.addToken(TokenType.SLASH);
+    }
     break;
    case '\r':
    case '\t':
@@ -222,6 +218,10 @@ export default class Scanner {
 
  private advance() {
   return this.source.charAt(this.current++);
+ }
+
+ private isAtEnd() {
+  return this.current >= this.source.length;
  }
 
  private addToken(type: TokenType, literal: unknown = null) {

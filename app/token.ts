@@ -3,7 +3,6 @@ export enum TokenType {
  RIGHT_PAREN = 'RIGHT_PAREN',
  LEFT_BRACE = 'LEFT_BRACE',
  RIGHT_BRACE = 'RIGHT_BRACE',
- EOF = 'EOF',
 
  COMMA = 'COMMA',
  DOT = 'DOT',
@@ -45,6 +44,8 @@ export enum TokenType {
  TRUE = 'TRUE',
  VAR = 'VAR',
  WHILE = 'WHILE',
+
+ EOF = 'EOF',
 }
 
 export class Token {

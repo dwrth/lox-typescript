@@ -1,31 +1,36 @@
 import fs from 'fs';
 import Scanner from './scanner';
 
-const args: string[] = process.argv.slice(2); // Skip the first two arguments (node path and script path)
+class Lox {
+ private args: string[] = process.argv.slice(2);
+ private command: string;
+ private filename: string;
 
-if (args.length < 2) {
- console.error('Usage: ./your_program.sh tokenize <filename>');
- process.exit(1);
+ public constructor() {
+  if (this.args.length < 2) {
+   console.error('Usage: ./your_program.sh tokenize <filename>');
+   process.exit(1);
+  }
+
+  this.command = this.args[0];
+  this.filename = this.args[1];
+
+  switch (this.command) {
+   case 'tokenize':
+    const fileContent: string = fs.readFileSync(this.filename, 'utf8');
+    if (fileContent.length !== 0) {
+     const scanner = new Scanner(fileContent);
+     scanner.scanTokens();
+     scanner.printTokenList();
+    } else {
+     console.log('EOF  null');
+    }
+    break;
+   default:
+    console.error(`Usage: Unknown command: ${this.command}`);
+    process.exit(1);
+  }
+ }
 }
 
-const command: string = args[0];
-
-if (command !== 'tokenize') {
- console.error(`Usage: Unknown command: ${command}`);
- process.exit(1);
-}
-
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-console.error('Logs from your program will appear here!');
-
-const filename: string = args[1];
-
-const fileContent: string = fs.readFileSync(filename, 'utf8');
-
-if (fileContent.length !== 0) {
- const scanner = new Scanner(fileContent);
- scanner.scanTokens();
- scanner.printTokenList();
-} else {
- console.log('EOF  null');
-}
+new Lox();
