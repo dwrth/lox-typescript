@@ -129,7 +129,7 @@ export default class Scanner {
  }
 
  private format(num: string) {
-  return `${num}${Number.isInteger(num) ? '.0' : ''}`;
+  return `${num}${Number.isInteger(Number(num)) ? '.0' : ''}`;
  }
 
  private string() {
