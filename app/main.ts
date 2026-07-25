@@ -1,5 +1,4 @@
 import fs from 'fs';
-import type { Token } from './token';
 import Scanner from './scanner';
 
 const args: string[] = process.argv.slice(2); // Skip the first two arguments (node path and script path)
@@ -26,7 +25,6 @@ const fileContent: string = fs.readFileSync(filename, 'utf8');
 if (fileContent.length !== 0) {
  const scanner = new Scanner(fileContent);
  scanner.scanTokens();
-
  scanner.printTokenList();
 } else {
  console.log('EOF  null');
