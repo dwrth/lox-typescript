@@ -120,12 +120,16 @@ export default class Scanner {
 
   this.addToken(
    TokenType.NUMBER,
-   Number.parseFloat(this.source.substring(this.start, this.current)),
+   this.format(this.source.substring(this.start, this.current)),
   );
  }
 
  private isDigit(c: string) {
   return c >= '0' && c <= '9';
+ }
+
+ private format(num: string) {
+  return `${num}${Number.isInteger(num) ? '.0' : ''}`;
  }
 
  private string() {
