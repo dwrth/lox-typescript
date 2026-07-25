@@ -26,6 +26,25 @@ export enum TokenType {
 
  STRING = 'STRING',
  NUMBER = 'NUMBER',
+
+ IDENTIFIER = 'IDENTIFIER',
+
+ AND = 'AND',
+ CLASS = 'CLASS',
+ ELSE = 'ELSE',
+ FALSE = 'FALSE',
+ FOR = 'FOR',
+ FUN = 'FUN',
+ IF = 'IF',
+ NIL = 'NIL',
+ OR = 'OR',
+ PRINT = 'PRINT',
+ RETURN = 'RETURN',
+ SUPER = 'SUPER',
+ THIS = 'THIS',
+ TRUE = 'TRUE',
+ VAR = 'VAR',
+ WHILE = 'WHILE',
 }
 
 export class Token {
