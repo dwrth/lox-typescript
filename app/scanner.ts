@@ -118,21 +118,16 @@ export default class Scanner {
    }
   }
 
+  const literal = this.source.substring(this.start, this.current);
+
   this.addToken(
    TokenType.NUMBER,
-   this.format(this.source.substring(this.start, this.current)),
+   `${literal}${literal.includes('.') ? '' : '.0'}`,
   );
  }
 
  private isDigit(c: string) {
   return c >= '0' && c <= '9';
- }
-
- private format(num: string) {
-  console.log(num);
-  console.log(Number.isInteger(num));
-  console.log(typeof num);
-  return `${num}${Number.isInteger(num) ? '.0' : ''}`;
  }
 
  private string() {
