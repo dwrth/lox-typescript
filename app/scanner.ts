@@ -64,7 +64,7 @@ export default class Scanner {
     this.addToken(TokenType.STAR);
     break;
    default:
-    Logger.error(this.line, 'Unexpected character:');
+    Logger.error(this.line, `Unexpected character: ${c}`);
     break;
   }
  }
