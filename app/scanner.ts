@@ -120,9 +120,7 @@ export default class Scanner {
 
   this.addToken(
    TokenType.NUMBER,
-   Number.parseFloat(this.source.substring(this.start, this.current)).toFixed(
-    1,
-   ),
+   Number.parseFloat(this.source.substring(this.start, this.current)),
   );
  }
 
