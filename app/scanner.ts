@@ -60,7 +60,13 @@ export default class Scanner {
     this.addToken(TokenType.SEMICOLON);
     break;
    case '\/':
-    this.addToken(TokenType.SLASH);
+    if (this.match('\/')) {
+     while (this.peek() != '\n' && !this.isAtEnd()) {
+      this.advance();
+     }
+    } else {
+     this.addToken(TokenType.SLASH);
+    }
     break;
    case '*':
     this.addToken(TokenType.STAR);
@@ -96,6 +102,14 @@ export default class Scanner {
 
   this.current++;
   return true;
+ }
+
+ private peek() {
+  if (this.isAtEnd()) {
+   return '\0';
+  }
+
+  return this.source.charAt(this.current);
  }
 
  private advance() {
