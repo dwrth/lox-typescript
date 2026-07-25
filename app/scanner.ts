@@ -90,6 +90,7 @@ export default class Scanner {
     break;
    case '\r':
    case '\t':
+   case ' ':
     break;
    case '\n':
     this.line++;
