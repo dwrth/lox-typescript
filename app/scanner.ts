@@ -68,6 +68,9 @@ export default class Scanner {
    case '=':
     this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
     break;
+   case '!':
+    this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
+    break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
     this.hasError = true;

@@ -15,6 +15,9 @@ export enum TokenType {
 
  EQUAL = 'EQUAL',
  EQUAL_EQUAL = 'EQUAL_EQUAL',
+
+ BANG = 'BANG',
+ BANG_EQUAL = 'BANG_EQUAL',
 }
 
 export class Token {
