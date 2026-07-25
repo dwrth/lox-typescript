@@ -160,7 +160,9 @@ export default class Scanner {
 
   this.addToken(
    TokenType.NUMBER,
-   Number.isInteger(parseFloat(literal)) ? parseInt(literal) + '.0' : literal,
+   Number.isInteger(parseFloat(literal))
+    ? parseInt(literal) + '.0'
+    : Number(literal),
   );
  }
 
