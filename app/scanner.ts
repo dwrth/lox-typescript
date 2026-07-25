@@ -106,8 +106,8 @@ export default class Scanner {
   while (this.peek() != '"' && !this.isAtEnd()) {
    if (this.peek() == '\n') {
     this.line++;
-    this.advance();
    }
+   this.advance();
   }
 
   if (this.isAtEnd()) {
