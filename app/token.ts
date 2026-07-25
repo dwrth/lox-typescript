@@ -23,6 +23,8 @@ export enum TokenType {
  LESS_EQUAL = 'LESS_EQUAL',
  GREATER = 'GREATER',
  GREATER_EQUAL = 'GREATER_EQUAL',
+
+ STRING = 'STRING',
 }
 
 export class Token {

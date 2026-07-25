@@ -85,6 +85,9 @@ export default class Scanner {
      this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
     );
     break;
+   case '"':
+    this.string();
+    break;
    case ' ':
    case '\r':
    case '\t':
@@ -97,6 +100,27 @@ export default class Scanner {
     this.hasError = true;
     break;
   }
+ }
+
+ private string() {
+  while (this.peek() != '"' && !this.isAtEnd()) {
+   if (this.peek() == '\n') {
+    this.line++;
+    this.advance();
+   }
+  }
+
+  if (this.isAtEnd()) {
+   Logger.error(this.line, 'Unterminated string.');
+   return;
+  }
+
+  this.advance();
+
+  this.addToken(
+   TokenType.STRING,
+   this.source.substring(this.start + 1, this.current - 1),
+  );
  }
 
  private match(expected: string) {
