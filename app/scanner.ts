@@ -112,6 +112,7 @@ export default class Scanner {
 
   if (this.isAtEnd()) {
    Logger.error(this.line, 'Unterminated string.');
+   this.hasError = true;
    return;
   }
 
