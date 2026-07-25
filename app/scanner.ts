@@ -88,7 +88,6 @@ export default class Scanner {
    case '"':
     this.string();
     break;
-   case ' ':
    case '\r':
    case '\t':
     break;
@@ -96,10 +95,32 @@ export default class Scanner {
     this.line++;
     break;
    default:
-    Logger.error(this.line, `Unexpected character: ${c}`);
-    this.hasError = true;
+    if (this.isDigit(c)) {
+     this.number();
+    } else {
+     Logger.error(this.line, `Unexpected character: ${c}`);
+     this.hasError = true;
+    }
     break;
   }
+ }
+
+ private number() {
+  while (this.isDigit(this.peek())) {
+   this.advance();
+  }
+
+  if (this.peek() == '.' && this.isDigit(this.peekNext())) {
+   this.advance();
+
+   while (this.isDigit(this.peek())) {
+    this.advance();
+   }
+  }
+ }
+
+ private isDigit(c: string) {
+  return c >= '0' && c <= '9';
  }
 
  private string() {
@@ -142,6 +163,14 @@ export default class Scanner {
   }
 
   return this.source.charAt(this.current);
+ }
+
+ private peekNext() {
+  if (this.current + 1 >= this.source.length) {
+   return '\0';
+  }
+
+  return this.source.charAt(this.current + 1);
  }
 
  private advance() {
