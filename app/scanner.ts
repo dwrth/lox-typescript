@@ -8,6 +8,7 @@ export default class Scanner {
  private start: number = 0;
  private current: number = 0;
  private line: number = 1;
+ private hasError: boolean = false;
 
  constructor(source: string) {
   this.source = source;
@@ -66,7 +67,8 @@ export default class Scanner {
     break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
-    exit(65);
+    this.hasError = true;
+    break;
   }
  }
 
@@ -81,5 +83,6 @@ export default class Scanner {
 
  public printTokenList() {
   console.log(this.tokens.map((t) => t.toString()).join('\n'));
+  if (this.hasError) exit(65);
  }
 }
