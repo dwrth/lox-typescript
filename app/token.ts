@@ -12,6 +12,9 @@ export enum TokenType {
  SEMICOLON = 'SEMICOLON',
  SLASH = 'SLASH',
  STAR = 'STAR',
+
+ EQUAL = 'EQUAL',
+ EQUAL_EQUAL = 'EQUAL_EQUAL',
 }
 
 export class Token {

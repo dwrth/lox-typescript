@@ -65,11 +65,26 @@ export default class Scanner {
    case '*':
     this.addToken(TokenType.STAR);
     break;
+   case '=':
+    this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+    break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
     this.hasError = true;
     break;
   }
+ }
+
+ private match(expected: string) {
+  if (this.isAtEnd()) {
+   return false;
+  }
+  if (this.source.charAt(this.current) != expected) {
+   return false;
+  }
+
+  this.current++;
+  return true;
  }
 
  private advance() {
