@@ -131,6 +131,7 @@ export default class Scanner {
  private format(num: string) {
   console.log(num);
   console.log(Number.isInteger(num));
+  console.log(typeof num);
   return `${num}${Number.isInteger(num) ? '.0' : ''}`;
  }
 
