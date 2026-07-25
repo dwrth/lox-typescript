@@ -85,15 +85,15 @@ export default class Scanner {
      this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
     );
     break;
-   case '"':
-    this.string();
-    break;
    case '\r':
    case '\t':
    case ' ':
     break;
    case '\n':
     this.line++;
+    break;
+   case '"':
+    this.string();
     break;
    default:
     if (this.isDigit(c)) {
