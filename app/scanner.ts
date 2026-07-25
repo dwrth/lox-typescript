@@ -122,7 +122,7 @@ export default class Scanner {
 
   this.addToken(
    TokenType.NUMBER,
-   `${literal}${literal.includes('.') ? '' : '.0'}`,
+   `${literal}${literal.includes('.') && !Number.isInteger(literal) ? '' : '.0'}`,
   );
  }
 
