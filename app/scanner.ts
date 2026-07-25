@@ -1,3 +1,4 @@
+import { exit } from 'node:process';
 import { Logger } from './logger';
 import { Token, TokenType } from './token';
 
@@ -65,7 +66,7 @@ export default class Scanner {
     break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
-    break;
+    exit(64);
   }
  }
 
