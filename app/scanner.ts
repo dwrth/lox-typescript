@@ -66,7 +66,7 @@ export default class Scanner {
     break;
    default:
     Logger.error(this.line, `Unexpected character: ${c}`);
-    exit(64);
+    exit(65);
   }
  }
 
