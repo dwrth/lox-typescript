@@ -88,7 +88,7 @@ export default class Interpreter implements Visitor<unknown> {
    return false;
   }
 
-  return a === b;
+  return a == b;
  }
 
  private stringify(value: unknown): string {
