@@ -46,7 +46,7 @@ export default class Interpreter implements Visitor<unknown> {
    case TokenType.MINUS:
     return Number(left) - Number(right);
    case TokenType.PLUS:
-    if (!Number.isNaN(left) && !Number.isNaN(right)) {
+    if (!Number.isNaN(Number(left)) && !Number.isNaN(Number(right))) {
      return Number(left) + Number(right);
     }
     if (typeof left === 'string' && typeof right === 'string') {
