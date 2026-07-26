@@ -32,6 +32,6 @@ export default class AstPrinter implements Visitor<string> {
  }
 
  private parenthesize(name: string, ...exprs: Expr[]) {
-  return `(${name} ${exprs.map((expr) => ` ${expr.accept(this)}`).join()})`;
+  return `(${name} ${exprs.map((expr) => `${expr.accept(this)}`).join()})`;
  }
 }
