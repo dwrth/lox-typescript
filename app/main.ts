@@ -41,7 +41,7 @@ function main(args: string[]) {
    const parser = new Parser(tokens);
    const expression = parser.parse();
    if (globalThis.hadError || expression === null) {
-    return;
+    process.exit(65);
    }
 
    console.log(new AstPrinter().print(expression));
