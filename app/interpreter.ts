@@ -46,7 +46,7 @@ export default class Interpreter implements Visitor<unknown> {
    case TokenType.MINUS:
     return Number(left) - Number(right);
    case TokenType.PLUS:
-    if (typeof left === 'number' && typeof right === 'number') {
+    if (!Number.isNaN(left) && !Number.isNaN(right)) {
      return Number(left) + Number(right);
     }
     if (typeof left === 'string' && typeof right === 'string') {
@@ -96,7 +96,7 @@ export default class Interpreter implements Visitor<unknown> {
    return 'nil';
   }
 
-  if (!isNaN(Number(value))) {
+  if (!Number.isNaN(Number(value))) {
    let text: string = String(value);
    if (text.endsWith('.0')) {
     text = text.substring(0, text.length - 2);
