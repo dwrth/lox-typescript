@@ -61,7 +61,7 @@ export class Token {
   this.line = line;
  }
 
- public toString() {
+ public toString(): string {
   return `${this.type} ${this.lexeme} ${this.literal}`;
  }
 }

@@ -18,11 +18,18 @@
   "strict": true,
   "skipLibCheck": true,
   "noFallthroughCasesInSwitch": true,
+  "noImplicitAny": true,
+  "noImplicitReturns": true,
 
   // Some stricter flags (disabled by default)
   "noUnusedLocals": false,
   "noUnusedParameters": false,
   "noPropertyAccessFromIndexSignature": false,
-  "types": ["node"]
+
+  // more
+  "types": ["node"],
+  "paths": {
+   "@/*": ["./app/*"]
+  }
  }
 }

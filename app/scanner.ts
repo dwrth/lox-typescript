@@ -8,7 +8,6 @@ export default class Scanner {
  private start: number = 0;
  private current: number = 0;
  private line: number = 1;
- private hasError: boolean = false;
 
  private readonly keywords: Map<string, TokenType> = new Map();
 
@@ -32,7 +31,7 @@ export default class Scanner {
   this.keywords.set('while', TokenType.WHILE);
  }
 
- public scanTokens() {
+ public scanTokens(): Token[] {
   while (!this.isAtEnd()) {
    this.start = this.current;
    this.scanToken();
@@ -42,7 +41,7 @@ export default class Scanner {
   return this.tokens;
  }
 
- private scanToken() {
+ private scanToken(): void {
   const c = this.advance();
 
   switch (c) {
@@ -116,13 +115,12 @@ export default class Scanner {
      this.identifier();
     } else {
      Logger.error(this.line, `Unexpected character: ${c}`);
-     this.hasError = true;
     }
     break;
   }
  }
 
- private identifier() {
+ private identifier(): void {
   while (this.isAlphaNumeric(this.peek())) {
    this.advance();
   }
@@ -131,15 +129,15 @@ export default class Scanner {
   this.addToken(this.keywords.get(text) ?? TokenType.IDENTIFIER);
  }
 
- private isAlpha(c: string) {
+ private isAlpha(c: string): boolean {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
  }
 
- private isAlphaNumeric(c: string) {
+ private isAlphaNumeric(c: string): boolean {
   return this.isAlpha(c) || this.isDigit(c);
  }
 
- private number() {
+ private number(): void {
   while (this.isDigit(this.peek())) {
    this.advance();
   }
@@ -162,11 +160,11 @@ export default class Scanner {
   );
  }
 
- private isDigit(c: string) {
+ private isDigit(c: string): boolean {
   return c >= '0' && c <= '9';
  }
 
- private string() {
+ private string(): void {
   while (this.peek() != '"' && !this.isAtEnd()) {
    if (this.peek() == '\n') {
     this.line++;
@@ -176,7 +174,6 @@ export default class Scanner {
 
   if (this.isAtEnd()) {
    Logger.error(this.line, 'Unterminated string.');
-   this.hasError = true;
    return;
   }
 
@@ -188,7 +185,7 @@ export default class Scanner {
   );
  }
 
- private match(expected: string) {
+ private match(expected: string): boolean {
   if (this.isAtEnd()) {
    return false;
   }
@@ -200,7 +197,7 @@ export default class Scanner {
   return true;
  }
 
- private peek() {
+ private peek(): string {
   if (this.isAtEnd()) {
    return '\0';
   }
@@ -208,7 +205,7 @@ export default class Scanner {
   return this.source.charAt(this.current);
  }
 
- private peekNext() {
+ private peekNext(): string {
   if (this.current + 1 >= this.source.length) {
    return '\0';
   }
@@ -216,21 +213,21 @@ export default class Scanner {
   return this.source.charAt(this.current + 1);
  }
 
- private advance() {
+ private advance(): string {
   return this.source.charAt(this.current++);
  }
 
- private isAtEnd() {
+ private isAtEnd(): boolean {
   return this.current >= this.source.length;
  }
 
- private addToken(type: TokenType, literal: unknown = null) {
+ private addToken(type: TokenType, literal: unknown = null): void {
   const text: string = this.source.substring(this.start, this.current);
   this.tokens.push(new Token(type, text, literal, this.line));
  }
 
- public printTokenList() {
+ public printTokenList(): void {
   console.log(this.tokens.map((t) => t.toString()).join('\n'));
-  if (this.hasError) exit(65);
+  if (globalThis.hadError) exit(65);
  }
 }
