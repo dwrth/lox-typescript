@@ -1,9 +1,10 @@
 import fs from 'fs';
 import Scanner from './scanner';
 import { Parser } from './parser';
-import type { Token } from './token';
 import { Logger } from './logger';
 import AstPrinter from './ast-printer';
+import Interpreter from './interpreter';
+import type { Token } from './token';
 
 declare global {
  var logger: Logger;
@@ -23,28 +24,40 @@ function main(args: string[]) {
  const filename = args[1];
  const fileContent = fs.readFileSync(filename, 'utf8');
 
- let scanner: Scanner;
+ const scanner = new Scanner(fileContent);
+ const parser = (tokens: Token[]) => new Parser(tokens);
  let tokens: Token[];
-
- if (fileContent.length !== 0) {
-  scanner = new Scanner(fileContent);
-  tokens = scanner.scanTokens();
- } else {
-  return console.log('EOF  null');
- }
 
  switch (command) {
   case 'tokenize':
-   scanner.printTokenList();
+   if (fileContent.length !== 0) {
+    scanner.scanTokens();
+    scanner.printTokenList();
+   } else {
+    return console.log('EOF  null');
+   }
    break;
   case 'parse':
-   const parser = new Parser(tokens);
-   const expression = parser.parse();
+   tokens = scanner.scanTokens();
+   const expression = parser(tokens).parse();
+
    if (globalThis.hadError || expression === null) {
     process.exit(65);
    }
 
    console.log(new AstPrinter().print(expression));
+   break;
+  case 'evaluate':
+   tokens = scanner.scanTokens();
+   const parserE = new Parser(tokens);
+   const expressionE = parserE.parse();
+
+   if (globalThis.hadError || expressionE === null) {
+    process.exit(65);
+   }
+
+   const interpreter = new Interpreter();
+   interpreter.interpret(expressionE);
    break;
   default:
    console.error(`Usage: Unknown command: ${command}`);

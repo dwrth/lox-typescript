@@ -11,7 +11,7 @@ export class Logger {
  }
 
  public static parserError(token: Token, message: string) {
-  if (token.type == TokenType.EOF) {
+  if (token.type === TokenType.EOF) {
    this.report(token.line, ' at end', message);
   } else {
    this.report(token.line, ` at '${token.lexeme}'`, message);

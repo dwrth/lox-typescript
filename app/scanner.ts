@@ -130,7 +130,7 @@ export default class Scanner {
  }
 
  private isAlpha(c: string): boolean {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '_';
  }
 
  private isAlphaNumeric(c: string): boolean {
@@ -142,7 +142,7 @@ export default class Scanner {
    this.advance();
   }
 
-  if (this.peek() == '.' && this.isDigit(this.peekNext())) {
+  if (this.peek() === '.' && this.isDigit(this.peekNext())) {
    this.advance();
 
    while (this.isDigit(this.peek())) {
@@ -166,7 +166,7 @@ export default class Scanner {
 
  private string(): void {
   while (this.peek() != '"' && !this.isAtEnd()) {
-   if (this.peek() == '\n') {
+   if (this.peek() === '\n') {
     this.line++;
    }
    this.advance();
