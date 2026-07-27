@@ -1,12 +1,16 @@
 import type { Binary, Expr, Grouping, Literal, Unary, Visitor } from './expr';
-import { TokenType } from './token';
+import { Logger } from './logger';
+import RuntimeError from './runtime-error';
+import { Token, TokenType } from './token';
 
 export default class Interpreter implements Visitor<unknown> {
  public interpret(expression: Expr) {
   try {
    const value: unknown = this.evaluate(expression);
    console.log(this.stringify(value));
-  } catch (err) {}
+  } catch (err) {
+   Logger.runtimeError(err as unknown as RuntimeError);
+  }
  }
 
  visitLiteralExpr(expr: Literal): unknown {
@@ -24,10 +28,27 @@ export default class Interpreter implements Visitor<unknown> {
    case TokenType.BANG:
     return !this.isTruthy(right);
    case TokenType.MINUS:
+    this.checkNumberOperand(expr.operator, right);
     return -Number(right);
   }
 
   return null;
+ }
+
+ private checkNumberOperand(operator: Token, operand: unknown) {
+  if (globalThis.isNumeric(operand)) {
+   return;
+  }
+
+  throw new RuntimeError(operator, 'Operand must be a number.');
+ }
+
+ private checkNumberOperands(operator: Token, left: unknown, right: unknown) {
+  if (globalThis.isNumeric(left) && globalThis.isNumeric(right)) {
+   return;
+  }
+
+  throw new RuntimeError(operator, 'Operands must be a numbers.');
  }
 
  visitBinaryExpr(expr: Binary): unknown {
@@ -36,26 +57,37 @@ export default class Interpreter implements Visitor<unknown> {
 
   switch (expr.operator.type) {
    case TokenType.GREATER:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) > Number(right);
    case TokenType.GREATER_EQUAL:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) >= Number(right);
    case TokenType.LESS:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) < Number(right);
    case TokenType.LESS_EQUAL:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) <= Number(right);
    case TokenType.MINUS:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) - Number(right);
    case TokenType.PLUS:
-    if (!Number.isNaN(Number(left)) && !Number.isNaN(Number(right))) {
+    if (globalThis.isNumeric(left) && globalThis.isNumeric(right)) {
      return Number(left) + Number(right);
     }
     if (typeof left === 'string' && typeof right === 'string') {
      return String(left) + String(right);
     }
-    break;
+
+    throw new RuntimeError(
+     expr.operator,
+     'Operands must be two numbers or two strings.',
+    );
    case TokenType.SLASH:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) / Number(right);
    case TokenType.STAR:
+    this.checkNumberOperands(expr.operator, left, right);
     return Number(left) * Number(right);
    case TokenType.BANG_EQUAL:
     return !this.isEqual(left, right);
@@ -96,7 +128,7 @@ export default class Interpreter implements Visitor<unknown> {
    return 'nil';
   }
 
-  if (!Number.isNaN(Number(value))) {
+  if (globalThis.isNumeric(value)) {
    let text: string = String(value);
    if (text.endsWith('.0')) {
     text = text.substring(0, text.length - 2);

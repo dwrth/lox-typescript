@@ -1,3 +1,4 @@
+import type RuntimeError from './runtime-error';
 import { TokenType, type Token } from './token';
 
 export class Logger {
@@ -16,5 +17,10 @@ export class Logger {
   } else {
    this.report(token.line, ` at '${token.lexeme}'`, message);
   }
+ }
+
+ public static runtimeError(error: RuntimeError) {
+  // console.log(`${error.message} \n[line ${error.token.line}]`);
+  globalThis.hadRuntimeError = true;
  }
 }

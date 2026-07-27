@@ -228,6 +228,5 @@ export default class Scanner {
 
  public printTokenList(): void {
   console.log(this.tokens.map((t) => t.toString()).join('\n'));
-  if (globalThis.hadError) exit(65);
  }
 }
