@@ -21,10 +21,16 @@ export default class AstPrinter implements Visitor<string> {
  }
 
  visitLiteralExpr(expr: Literal): string {
-  if (!expr.value && expr.value !== false) {
+  if (expr.value === null) {
    return 'nil';
   }
-  return expr.value.toString();
+
+  if (typeof expr.value === 'number') {
+   return Number.isInteger(expr.value)
+    ? expr.value.toFixed(1)
+    : String(expr.value);
+  }
+  return String(expr.value);
  }
 
  visitUnaryExpr(expr: Unary): string {

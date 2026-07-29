@@ -9,7 +9,9 @@ export default class Interpreter implements Visitor<unknown> {
    const value: unknown = this.evaluate(expression);
    console.log(this.stringify(value));
   } catch (err) {
-   Logger.runtimeError(err as unknown as RuntimeError);
+   if (err instanceof RuntimeError) {
+    Logger.runtimeError(err as unknown as RuntimeError);
+   }
   }
  }
 
@@ -29,26 +31,10 @@ export default class Interpreter implements Visitor<unknown> {
     return !this.isTruthy(right);
    case TokenType.MINUS:
     this.checkNumberOperand(expr.operator, right);
-    return -Number(right);
+    return -(right as number);
   }
 
   return null;
- }
-
- private checkNumberOperand(operator: Token, operand: unknown) {
-  if (globalThis.isNumeric(operand)) {
-   return;
-  }
-
-  throw new RuntimeError(operator, 'Operand must be a number.');
- }
-
- private checkNumberOperands(operator: Token, left: unknown, right: unknown) {
-  if (globalThis.isNumeric(left) && globalThis.isNumeric(right)) {
-   return;
-  }
-
-  throw new RuntimeError(operator, 'Operands must be a numbers.');
  }
 
  visitBinaryExpr(expr: Binary): unknown {
@@ -58,25 +44,25 @@ export default class Interpreter implements Visitor<unknown> {
   switch (expr.operator.type) {
    case TokenType.GREATER:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) > Number(right);
+    return (left as number) > (right as number);
    case TokenType.GREATER_EQUAL:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) >= Number(right);
+    return (left as number) >= (right as number);
    case TokenType.LESS:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) < Number(right);
+    return (left as number) < (right as number);
    case TokenType.LESS_EQUAL:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) <= Number(right);
+    return (left as number) <= (right as number);
    case TokenType.MINUS:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) - Number(right);
+    return (left as number) - (right as number);
    case TokenType.PLUS:
-    if (globalThis.isNumeric(left) && globalThis.isNumeric(right)) {
-     return Number(left) + Number(right);
+    if (typeof left === 'number' && typeof right === 'number') {
+     return (left as number) + (right as number);
     }
     if (typeof left === 'string' && typeof right === 'string') {
-     return String(left) + String(right);
+     return (left as string) + (right as string);
     }
 
     throw new RuntimeError(
@@ -85,10 +71,10 @@ export default class Interpreter implements Visitor<unknown> {
     );
    case TokenType.SLASH:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) / Number(right);
+    return (left as number) / (right as number);
    case TokenType.STAR:
     this.checkNumberOperands(expr.operator, left, right);
-    return Number(left) * Number(right);
+    return (left as number) * (right as number);
    case TokenType.BANG_EQUAL:
     return !this.isEqual(left, right);
    case TokenType.EQUAL_EQUAL:
@@ -103,12 +89,14 @@ export default class Interpreter implements Visitor<unknown> {
  }
 
  private isTruthy(value: unknown) {
-  if (value === null) {
+  if (value === null || value === undefined) {
    return false;
   }
+
   if (typeof value === 'boolean') {
-   return Boolean(value);
+   return value;
   }
+
   return true;
  }
 
@@ -120,15 +108,31 @@ export default class Interpreter implements Visitor<unknown> {
    return false;
   }
 
-  return a == b;
+  return a === b;
+ }
+
+ private checkNumberOperand(operator: Token, operand: unknown) {
+  if (typeof operand === 'number') {
+   return;
+  }
+
+  throw new RuntimeError(operator, 'Operand must be a number.');
+ }
+
+ private checkNumberOperands(operator: Token, left: unknown, right: unknown) {
+  if (typeof left === 'number' && typeof right === 'number') {
+   return;
+  }
+
+  throw new RuntimeError(operator, 'Operands must be a numbers.');
  }
 
  private stringify(value: unknown): string {
-  if (value === null) {
+  if (value === null || value === undefined) {
    return 'nil';
   }
 
-  if (globalThis.isNumeric(value)) {
+  if (typeof value === 'number') {
    let text: string = String(value);
    if (text.endsWith('.0')) {
     text = text.substring(0, text.length - 2);

@@ -152,12 +152,7 @@ export default class Scanner {
 
   const literal = this.source.substring(this.start, this.current);
 
-  this.addToken(
-   TokenType.NUMBER,
-   Number.isInteger(parseFloat(literal))
-    ? parseInt(literal) + '.0'
-    : Number(literal),
-  );
+  this.addToken(TokenType.NUMBER, parseFloat(literal));
  }
 
  private isDigit(c: string): boolean {
@@ -227,6 +222,11 @@ export default class Scanner {
  }
 
  public printTokenList(): void {
-  console.log(this.tokens.map((t) => t.toString()).join('\n'));
+  this.tokens.forEach(({ type, lexeme, literal }) => {
+   if (typeof literal === 'number' && Number.isInteger(literal)) {
+    literal = literal.toFixed(1);
+   }
+   console.log(`${type} ${lexeme} ${literal}`);
+  });
  }
 }

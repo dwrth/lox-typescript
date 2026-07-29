@@ -11,7 +11,6 @@ declare global {
  var logger: Logger;
  var hadError: boolean;
  var hadRuntimeError: boolean;
- var isNumeric: (value: unknown) => boolean;
 }
 
 function main(args: string[]) {
@@ -23,16 +22,6 @@ function main(args: string[]) {
  globalThis.logger = new Logger();
  globalThis.hadError = false;
  globalThis.hadRuntimeError = false;
- globalThis.isNumeric = (value: unknown) => {
-  return (
-   value !== '' &&
-   value !== null &&
-   value !== false &&
-   value !== true &&
-   value !== true &&
-   Number.isFinite(Number(value))
-  );
- };
 
  const command = args[0];
  const filename = args[1];
