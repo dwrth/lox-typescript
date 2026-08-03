@@ -1,67 +1,70 @@
 export enum TokenType {
- LEFT_PAREN = 'LEFT_PAREN',
- RIGHT_PAREN = 'RIGHT_PAREN',
- LEFT_BRACE = 'LEFT_BRACE',
- RIGHT_BRACE = 'RIGHT_BRACE',
+  LEFT_PAREN = "LEFT_PAREN",
+  RIGHT_PAREN = "RIGHT_PAREN",
+  LEFT_BRACE = "LEFT_BRACE",
+  RIGHT_BRACE = "RIGHT_BRACE",
 
- COMMA = 'COMMA',
- DOT = 'DOT',
- MINUS = 'MINUS',
- PLUS = 'PLUS',
- SEMICOLON = 'SEMICOLON',
- SLASH = 'SLASH',
- STAR = 'STAR',
+  COMMA = "COMMA",
+  DOT = "DOT",
+  MINUS = "MINUS",
+  PLUS = "PLUS",
+  SEMICOLON = "SEMICOLON",
+  SLASH = "SLASH",
+  STAR = "STAR",
 
- EQUAL = 'EQUAL',
- EQUAL_EQUAL = 'EQUAL_EQUAL',
+  EQUAL = "EQUAL",
+  EQUAL_EQUAL = "EQUAL_EQUAL",
 
- BANG = 'BANG',
- BANG_EQUAL = 'BANG_EQUAL',
+  BANG = "BANG",
+  BANG_EQUAL = "BANG_EQUAL",
 
- LESS = 'LESS',
- LESS_EQUAL = 'LESS_EQUAL',
- GREATER = 'GREATER',
- GREATER_EQUAL = 'GREATER_EQUAL',
+  LESS = "LESS",
+  LESS_EQUAL = "LESS_EQUAL",
+  GREATER = "GREATER",
+  GREATER_EQUAL = "GREATER_EQUAL",
 
- STRING = 'STRING',
- NUMBER = 'NUMBER',
+  STRING = "STRING",
+  NUMBER = "NUMBER",
 
- IDENTIFIER = 'IDENTIFIER',
+  IDENTIFIER = "IDENTIFIER",
 
- AND = 'AND',
- CLASS = 'CLASS',
- ELSE = 'ELSE',
- FALSE = 'FALSE',
- FOR = 'FOR',
- FUN = 'FUN',
- IF = 'IF',
- NIL = 'NIL',
- OR = 'OR',
- PRINT = 'PRINT',
- RETURN = 'RETURN',
- SUPER = 'SUPER',
- THIS = 'THIS',
- TRUE = 'TRUE',
- VAR = 'VAR',
- WHILE = 'WHILE',
+  AND = "AND",
+  CLASS = "CLASS",
+  ELSE = "ELSE",
+  FALSE = "FALSE",
+  FOR = "FOR",
+  FUN = "FUN",
+  IF = "IF",
+  NIL = "NIL",
+  OR = "OR",
+  PRINT = "PRINT",
+  RETURN = "RETURN",
+  SUPER = "SUPER",
+  THIS = "THIS",
+  TRUE = "TRUE",
+  VAR = "VAR",
+  WHILE = "WHILE",
 
- EOF = 'EOF',
+  EOF = "EOF",
 }
 
 export class Token {
- readonly type: TokenType;
- readonly lexeme: string;
- readonly literal: unknown;
- readonly line: number;
+  readonly type: TokenType;
+  readonly lexeme: string;
+  readonly line: number;
+  literal: unknown;
 
- constructor(type: TokenType, lexeme: string, literal: unknown, line: number) {
-  this.type = type;
-  this.lexeme = lexeme;
-  this.literal = literal;
-  this.line = line;
- }
+  constructor(type: TokenType, lexeme: string, literal: unknown, line: number) {
+    this.type = type;
+    this.lexeme = lexeme;
+    this.literal = literal;
+    this.line = line;
+  }
 
- public toString(): string {
-  return `${this.type} ${this.lexeme} ${this.literal}`;
- }
+  public toString(): string {
+    if (typeof this.literal === "number" && Number.isInteger(this.literal)) {
+      this.literal = this.literal.toFixed(1);
+    }
+    return `${this.type} ${this.lexeme} ${this.literal}`;
+  }
 }

@@ -1,79 +1,71 @@
-import fs from 'fs';
-import Scanner from './scanner';
-import { Parser } from './parser';
-import { Logger } from './logger';
-import AstPrinter from './ast-printer';
-import Interpreter from './interpreter';
-import type { Token } from './token';
-import { exit } from 'process';
+import fs from "fs";
+import Scanner from "./scanner";
+import { Parser } from "./parser";
+import { Logger } from "./logger";
+import generateAst from "../tool/generate-ast";
+import Interpreter from "./interpreter";
+import AstPrinter from "./ast-printer";
 
 declare global {
- var logger: Logger;
- var hadError: boolean;
- var hadRuntimeError: boolean;
+  var hadError: boolean;
+  var hadRuntimeError: boolean;
+  var logger: Logger;
+
+  var command: "tokenize" | "parse" | "evaluate" | "generate_ast" | "run";
+  var fileName: string;
+  var fileContent: string;
 }
 
-function main(args: string[]) {
- if (args.length < 2) {
-  console.error('Usage: ./your_program.sh tokenize <filename>');
+const args: string[] = process.argv.slice(2);
+
+if (args.length < 2) {
+  console.error("Usage: ./your_program.sh tokenize <filename>");
+  process.exit(64);
+}
+
+globalThis.logger = new Logger();
+globalThis.hadError = false;
+globalThis.hadRuntimeError = false;
+
+const command = args[0];
+const filename = args[1];
+const fileContent = filename.length ? fs.readFileSync(filename, "utf8") : "";
+
+const scanner = new Scanner(fileContent);
+const parser = new Parser(scanner.tokens);
+
+if (command === "tokenize") {
+  if (fileContent.length === 0) {
+    console.log("EOF  null");
+  } else {
+    console.log(scanner.tokens.map((t) => t.toString()).join("\n"));
+  }
+} else if (command === "parse") {
+  const expr = parser.parseTokens();
+  if (!globalThis.hadError && expr) {
+    console.log(new AstPrinter().print(expr));
+  }
+} else if (command === "evaluate") {
+  const expr = parser.parseTokens();
+  if (!globalThis.hadError && expr !== null) {
+    const interpreter = new Interpreter();
+    interpreter.interpretExpr(expr);
+  }
+} else if (command === "run") {
+  const statements = parser.parse();
+  if (!globalThis.hadError && statements.length) {
+    const interpreter = new Interpreter();
+    interpreter.interpret(statements);
+  }
+} else if (command === "generate_ast") {
+  generateAst(args.slice(1));
+} else {
+  console.error(`Usage: Unknown command: ${command}`);
   process.exit(1);
- }
-
- globalThis.logger = new Logger();
- globalThis.hadError = false;
- globalThis.hadRuntimeError = false;
-
- const command = args[0];
- const filename = args[1];
- const fileContent = fs.readFileSync(filename, 'utf8');
-
- const scanner = new Scanner(fileContent);
- const parser = (tokens: Token[]) => new Parser(tokens);
- let tokens: Token[];
-
- switch (command) {
-  case 'tokenize':
-   if (fileContent.length !== 0) {
-    scanner.scanTokens();
-    scanner.printTokenList();
-   } else {
-    return console.log('EOF  null');
-   }
-   break;
-  case 'parse':
-   tokens = scanner.scanTokens();
-   const expression = parser(tokens).parse();
-
-   if (globalThis.hadError || expression === null) {
-    break;
-   }
-
-   console.log(new AstPrinter().print(expression));
-   break;
-  case 'evaluate':
-   tokens = scanner.scanTokens();
-   const parserE = new Parser(tokens);
-   const expressionE = parserE.parse();
-
-   if (globalThis.hadError || expressionE === null) {
-    break;
-   }
-
-   const interpreter = new Interpreter();
-   interpreter.interpret(expressionE);
-   break;
-  default:
-   console.error(`Usage: Unknown command: ${command}`);
-   process.exit(1);
- }
-
- if (globalThis.hadError) {
-  process.exit(65);
- }
-
- if (globalThis.hadRuntimeError) {
-  process.exit(70);
- }
 }
 
-main(process.argv.slice(2));
+if (globalThis.hadError) {
+  process.exit(65);
+} else if (globalThis.hadRuntimeError) {
+  process.exit(70);
+}

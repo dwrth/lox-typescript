@@ -1,145 +1,180 @@
-import type { Binary, Expr, Grouping, Literal, Unary, Visitor } from './expr';
-import { Logger } from './logger';
-import RuntimeError from './runtime-error';
-import { Token, TokenType } from './token';
+import type {
+  Binary,
+  Expr,
+  Grouping,
+  Literal,
+  Unary,
+  Visitor as ExprVisitor,
+} from "./expr";
+import { Logger } from "./logger";
+import RuntimeError from "./runtime-error";
+import type { Expression, Print, Stmt, Visitor as StmtVisitor } from "./stmt";
+import { Token, TokenType } from "./token";
 
-export default class Interpreter implements Visitor<unknown> {
- public interpret(expression: Expr) {
-  try {
-   const value: unknown = this.evaluate(expression);
-   console.log(this.stringify(value));
-  } catch (err) {
-   if (err instanceof RuntimeError) {
-    Logger.runtimeError(err as unknown as RuntimeError);
-   }
-  }
- }
-
- visitLiteralExpr(expr: Literal): unknown {
-  return expr.value;
- }
-
- visitGroupingExpr(expr: Grouping): unknown {
-  return this.evaluate(expr.expression);
- }
-
- visitUnaryExpr(expr: Unary): unknown {
-  const right: unknown = this.evaluate(expr.right);
-
-  switch (expr.operator.type) {
-   case TokenType.BANG:
-    return !this.isTruthy(right);
-   case TokenType.MINUS:
-    this.checkNumberOperand(expr.operator, right);
-    return -(right as number);
-  }
-
-  return null;
- }
-
- visitBinaryExpr(expr: Binary): unknown {
-  const left: unknown = this.evaluate(expr.left);
-  const right: unknown = this.evaluate(expr.right);
-
-  switch (expr.operator.type) {
-   case TokenType.GREATER:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) > (right as number);
-   case TokenType.GREATER_EQUAL:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) >= (right as number);
-   case TokenType.LESS:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) < (right as number);
-   case TokenType.LESS_EQUAL:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) <= (right as number);
-   case TokenType.MINUS:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) - (right as number);
-   case TokenType.PLUS:
-    if (typeof left === 'number' && typeof right === 'number') {
-     return (left as number) + (right as number);
+export default class Interpreter
+  implements ExprVisitor<unknown>, StmtVisitor<void>
+{
+  public interpret(statements: Stmt[]) {
+    try {
+      for (const statement of statements) {
+        this.execute(statement);
+      }
+    } catch (err) {
+      if (err instanceof RuntimeError) {
+        Logger.runtimeError(err as unknown as RuntimeError);
+      }
     }
-    if (typeof left === 'string' && typeof right === 'string') {
-     return (left as string) + (right as string);
+  }
+
+  public interpretExpr(expression: Expr) {
+    try {
+      const value: unknown = this.evaluate(expression);
+      console.log(this.stringify(value));
+    } catch (err) {
+      if (err instanceof RuntimeError) {
+        Logger.runtimeError(err as unknown as RuntimeError);
+      }
+    }
+  }
+
+  visitLiteralExpr(expr: Literal): unknown {
+    return expr.value;
+  }
+
+  visitGroupingExpr(expr: Grouping): unknown {
+    return this.evaluate(expr.expression);
+  }
+
+  visitUnaryExpr(expr: Unary): unknown {
+    const right: unknown = this.evaluate(expr.right);
+
+    switch (expr.operator.type) {
+      case TokenType.BANG:
+        return !this.isTruthy(right);
+      case TokenType.MINUS:
+        this.checkNumberOperand(expr.operator, right);
+        return -(right as number);
     }
 
-    throw new RuntimeError(
-     expr.operator,
-     'Operands must be two numbers or two strings.',
-    );
-   case TokenType.SLASH:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) / (right as number);
-   case TokenType.STAR:
-    this.checkNumberOperands(expr.operator, left, right);
-    return (left as number) * (right as number);
-   case TokenType.BANG_EQUAL:
-    return !this.isEqual(left, right);
-   case TokenType.EQUAL_EQUAL:
-    return this.isEqual(left, right);
+    return null;
   }
 
-  return null;
- }
+  visitBinaryExpr(expr: Binary): unknown {
+    const left: unknown = this.evaluate(expr.left);
+    const right: unknown = this.evaluate(expr.right);
 
- private evaluate(expr: Expr) {
-  return expr.accept(this);
- }
+    switch (expr.operator.type) {
+      case TokenType.GREATER:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) > (right as number);
+      case TokenType.GREATER_EQUAL:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) >= (right as number);
+      case TokenType.LESS:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) < (right as number);
+      case TokenType.LESS_EQUAL:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) <= (right as number);
+      case TokenType.MINUS:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) - (right as number);
+      case TokenType.PLUS:
+        if (typeof left === "number" && typeof right === "number") {
+          return (left as number) + (right as number);
+        }
+        if (typeof left === "string" && typeof right === "string") {
+          return (left as string) + (right as string);
+        }
 
- private isTruthy(value: unknown) {
-  if (value === null || value === undefined) {
-   return false;
+        throw new RuntimeError(
+          expr.operator,
+          "Operands must be two numbers or two strings.",
+        );
+      case TokenType.SLASH:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) / (right as number);
+      case TokenType.STAR:
+        this.checkNumberOperands(expr.operator, left, right);
+        return (left as number) * (right as number);
+      case TokenType.BANG_EQUAL:
+        return !this.isEqual(left, right);
+      case TokenType.EQUAL_EQUAL:
+        return this.isEqual(left, right);
+    }
+
+    return null;
   }
 
-  if (typeof value === 'boolean') {
-   return value;
+  private evaluate(expr: Expr) {
+    return expr.accept(this);
   }
 
-  return true;
- }
-
- private isEqual(a: unknown, b: unknown) {
-  if (a === null && b === null) {
-   return true;
-  }
-  if (a === null) {
-   return false;
+  private execute(stmt: Stmt): void {
+    stmt.accept(this);
   }
 
-  return a === b;
- }
-
- private checkNumberOperand(operator: Token, operand: unknown) {
-  if (typeof operand === 'number') {
-   return;
+  visitExpressionStmt(stmt: Expression) {
+    this.evaluate(stmt.expression);
   }
 
-  throw new RuntimeError(operator, 'Operand must be a number.');
- }
-
- private checkNumberOperands(operator: Token, left: unknown, right: unknown) {
-  if (typeof left === 'number' && typeof right === 'number') {
-   return;
+  visitPrintStmt(stmt: Print) {
+    const value: unknown = this.evaluate(stmt.expression);
+    console.log(this.stringify(value));
   }
 
-  throw new RuntimeError(operator, 'Operands must be a numbers.');
- }
+  private isTruthy(value: unknown) {
+    if (value === null || value === undefined) {
+      return false;
+    }
 
- private stringify(value: unknown): string {
-  if (value === null || value === undefined) {
-   return 'nil';
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    return true;
   }
 
-  if (typeof value === 'number') {
-   let text: string = String(value);
-   if (text.endsWith('.0')) {
-    text = text.substring(0, text.length - 2);
-   }
-   return text;
+  private isEqual(a: unknown, b: unknown) {
+    if (a === null && b === null) {
+      return true;
+    }
+    if (a === null) {
+      return false;
+    }
+
+    return a === b;
   }
 
-  return String(value);
- }
+  private checkNumberOperand(operator: Token, operand: unknown) {
+    if (typeof operand === "number") {
+      return;
+    }
+
+    throw new RuntimeError(operator, "Operand must be a number.");
+  }
+
+  private checkNumberOperands(operator: Token, left: unknown, right: unknown) {
+    if (typeof left === "number" && typeof right === "number") {
+      return;
+    }
+
+    throw new RuntimeError(operator, "Operands must be a numbers.");
+  }
+
+  private stringify(value: unknown): string {
+    if (value === null || value === undefined) {
+      return "nil";
+    }
+
+    if (typeof value === "number") {
+      let text: string = String(value);
+      if (text.endsWith(".0")) {
+        text = text.substring(0, text.length - 2);
+      }
+      return text;
+    }
+
+    return String(value);
+  }
 }

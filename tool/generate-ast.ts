@@ -1,86 +1,97 @@
-import { exit } from 'node:process';
-import * as fs from 'fs';
+import { exit } from "node:process";
+import * as fs from "fs";
 
 export default function generateAst(args: string[]): void {
- if (args.length != 1) {
-  console.error('Usage: generate_ast <output dir>');
-  exit(64);
- }
+  if (args.length != 1) {
+    console.error("Usage: generate_ast <output dir>");
+    exit(64);
+  }
 
- const outputDir = args[0];
- defineAst(outputDir, 'Expr', [
-  'Binary   | left: Expr, operator: Token, right: Expr',
-  'Grouping | expression: Expr',
-  'Literal  | value: unknown',
-  'Unary    | operator: Token, right: Expr',
- ]);
+  const outputDir = args[0];
+  defineAst(outputDir, "Expr", [
+    "Binary   | left: Expr, operator: Token, right: Expr",
+    "Grouping | expression: Expr",
+    "Literal  | value: unknown",
+    "Unary    | operator: Token, right: Expr",
+  ]);
+
+  defineAst(outputDir, "Stmt", [
+    "Expression | expression: Expr",
+    "Print      | expression: Expr",
+  ]);
 }
 
 function defineAst(outputDir: string, baseName: string, types: string[]): void {
- const path = `${outputDir}/${baseName.toLowerCase()}.ts`;
- const writer = fs.createWriteStream(path, 'utf-8');
+  const path = `${outputDir}/${baseName.toLowerCase()}.ts`;
+  const writer = fs.createWriteStream(path, "utf-8");
 
- writer.on('open', () => {
-  writer.write("import type { Token } from '@/token';\n\n");
+  writer.on("open", () => {
+    if (baseName === "Expr") {
+      writer.write("import type { Token } from '@/token';\n\n");
+    }
 
-  defineVisitor(writer, baseName, types);
+    if (baseName !== "Expr") {
+      writer.write("import type { Expr } from '@/expr';\n\n");
+    }
 
-  writer.write(`export interface ${baseName} {\n`);
-  writer.write(' accept<R>(visitor: Visitor<R>): R;\n');
-  writer.write('}\n\n');
+    defineVisitor(writer, baseName, types);
 
-  for (const type of types) {
-   const className = type.split('|')[0].trim();
-   const fields = type.split('|')[1].trim();
-   defineType(writer, baseName, className, fields);
-  }
-  writer.close();
- });
+    writer.write(`export interface ${baseName} {\n`);
+    writer.write(" accept<R>(visitor: Visitor<R>): R;\n");
+    writer.write("}\n\n");
+
+    for (const type of types) {
+      const className = type.split("|")[0].trim();
+      const fields = type.split("|")[1].trim();
+      defineType(writer, baseName, className, fields);
+    }
+    writer.close();
+  });
 }
 
 function defineVisitor(
- writer: fs.WriteStream,
- baseName: string,
- types: string[],
+  writer: fs.WriteStream,
+  baseName: string,
+  types: string[],
 ): void {
- writer.write(`export interface Visitor<R> {\n`);
+  writer.write(`export interface Visitor<R> {\n`);
 
- for (const type of types) {
-  const typeName = type.split('|')[0].trim();
-  writer.write(
-   ` visit${typeName}${baseName}(${baseName.toLowerCase()}: ${typeName}): R;\n`,
-  );
- }
+  for (const type of types) {
+    const typeName = type.split("|")[0].trim();
+    writer.write(
+      ` visit${typeName}${baseName}(${baseName.toLowerCase()}: ${typeName}): R;\n`,
+    );
+  }
 
- writer.write('}\n\n');
+  writer.write("}\n\n");
 }
 
 function defineType(
- writer: fs.WriteStream,
- baseName: string,
- className: string,
- fieldList: string,
+  writer: fs.WriteStream,
+  baseName: string,
+  className: string,
+  fieldList: string,
 ) {
- const fields = fieldList.split(',').map((f) => f.trim());
+  const fields = fieldList.split(",").map((f) => f.trim());
 
- writer.write(`export class ${className} implements ${baseName} {\n`);
+  writer.write(`export class ${className} implements ${baseName} {\n`);
 
- writer.write(` constructor(${fieldList}) {\n`);
+  writer.write(` constructor(${fieldList}) {\n`);
 
- for (const field of fields) {
-  const name = field.split(':')[0].trim();
-  writer.write(`  this.${name} = ${name};\n`);
- }
+  for (const field of fields) {
+    const name = field.split(":")[0].trim();
+    writer.write(`  this.${name} = ${name};\n`);
+  }
 
- writer.write(' }\n\n');
+  writer.write(" }\n\n");
 
- writer.write(' accept<R>(visitor: Visitor<R>) {\n');
- writer.write(`  return visitor.visit${className}${baseName}(this);\n`);
- writer.write(' }\n\n');
+  writer.write(" accept<R>(visitor: Visitor<R>) {\n");
+  writer.write(`  return visitor.visit${className}${baseName}(this);\n`);
+  writer.write(" }\n\n");
 
- for (const field of fields) {
-  writer.write(` ${field};\n`);
- }
+  for (const field of fields) {
+    writer.write(` ${field};\n`);
+  }
 
- writer.write('}\n\n');
+  writer.write("}\n\n");
 }
