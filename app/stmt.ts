@@ -1,8 +1,10 @@
 import type { Expr } from "@/expr";
+import type { Token } from "@/token";
 
 export interface Visitor<R> {
   visitExpressionStmt(stmt: Expression): R;
   visitPrintStmt(stmt: Print): R;
+  visitVarStmt(stmt: Var): R;
 }
 
 export interface Stmt {
@@ -31,4 +33,18 @@ export class Print implements Stmt {
   }
 
   expression: Expr;
+}
+
+export class Var implements Stmt {
+  constructor(name: Token, initializer: Expr) {
+    this.name = name;
+    this.initializer = initializer;
+  }
+
+  accept<R>(visitor: Visitor<R>) {
+    return visitor.visitVarStmt(this);
+  }
+
+  name: Token;
+  initializer: Expr;
 }

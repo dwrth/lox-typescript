@@ -13,11 +13,13 @@ export default function generateAst(args: string[]): void {
     "Grouping | expression: Expr",
     "Literal  | value: unknown",
     "Unary    | operator: Token, right: Expr",
+    "Variable | name: Token",
   ]);
 
   defineAst(outputDir, "Stmt", [
     "Expression | expression: Expr",
     "Print      | expression: Expr",
+    "Var        | name: Token, initializer: Expr",
   ]);
 }
 
@@ -26,13 +28,10 @@ function defineAst(outputDir: string, baseName: string, types: string[]): void {
   const writer = fs.createWriteStream(path, "utf-8");
 
   writer.on("open", () => {
-    if (baseName === "Expr") {
-      writer.write("import type { Token } from '@/token';\n\n");
-    }
-
     if (baseName !== "Expr") {
-      writer.write("import type { Expr } from '@/expr';\n\n");
+      writer.write("import type { Expr } from '@/expr';\n");
     }
+    writer.write("import type { Token } from '@/token';\n\n");
 
     defineVisitor(writer, baseName, types);
 

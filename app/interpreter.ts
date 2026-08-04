@@ -1,3 +1,4 @@
+import { Environment } from "./environment";
 import type {
   Binary,
   Expr,
@@ -5,15 +6,24 @@ import type {
   Literal,
   Unary,
   Visitor as ExprVisitor,
+  Variable,
 } from "./expr";
 import { Logger } from "./logger";
 import RuntimeError from "./runtime-error";
-import type { Expression, Print, Stmt, Visitor as StmtVisitor } from "./stmt";
+import type {
+  Expression,
+  Print,
+  Stmt,
+  Visitor as StmtVisitor,
+  Var,
+} from "./stmt";
 import { Token, TokenType } from "./token";
 
 export default class Interpreter
   implements ExprVisitor<unknown>, StmtVisitor<void>
 {
+  private environment: Environment = new Environment();
+
   public interpret(statements: Stmt[]) {
     try {
       for (const statement of statements) {
@@ -57,6 +67,10 @@ export default class Interpreter
     }
 
     return null;
+  }
+
+  visitVariableExpr(expr: Variable): unknown {
+    return this.environment.get(expr.name);
   }
 
   visitBinaryExpr(expr: Binary): unknown {
@@ -121,6 +135,15 @@ export default class Interpreter
   visitPrintStmt(stmt: Print) {
     const value: unknown = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
+  }
+
+  visitVarStmt(stmt: Var): void {
+    let value = null;
+    if (stmt.initializer !== null) {
+      value = this.evaluate(stmt.initializer);
+    }
+
+    this.environment.define(stmt.name.lexeme, value);
   }
 
   private isTruthy(value: unknown) {

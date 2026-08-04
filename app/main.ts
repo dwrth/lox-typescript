@@ -29,7 +29,10 @@ globalThis.hadRuntimeError = false;
 
 const command = args[0];
 const filename = args[1];
-const fileContent = filename.length ? fs.readFileSync(filename, "utf8") : "";
+const fileContent =
+  filename.length && command !== "generate_ast"
+    ? fs.readFileSync(filename, "utf8")
+    : "";
 
 const scanner = new Scanner(fileContent);
 const parser = new Parser(scanner.tokens);
