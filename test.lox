@@ -1,1 +1,4 @@
-print "Hello wifffeeeeee";
+var wifeName = "My Love";
+var greeting = "Hello";
+
+print greeting + ", " + wifeName + "!";

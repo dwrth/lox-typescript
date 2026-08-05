@@ -1,4 +1,12 @@
-import { Binary, Grouping, Literal, Unary, Variable, type Expr } from "./expr";
+import {
+  Assign,
+  Binary,
+  Grouping,
+  Literal,
+  Unary,
+  Variable,
+  type Expr,
+} from "./expr";
 import { Logger } from "./logger";
 import { Expression, Print, Var, type Stmt } from "./stmt";
 import { TokenType, type Token } from "./token";
@@ -40,7 +48,7 @@ export class Parser {
   }
 
   private expression(): Expr {
-    return this.equality();
+    return this.assignment();
   }
 
   private declaration() {
@@ -91,6 +99,24 @@ export class Parser {
     const expr: Expr = this.expression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new Expression(expr);
+  }
+
+  private assignment(): Expr {
+    const expr = this.equality();
+
+    if (this.match(TokenType.EQUAL)) {
+      const equals = this.previous();
+      const value = this.assignment();
+
+      if (expr instanceof Variable) {
+        const name = expr.name;
+        return new Assign(name, value);
+      }
+
+      this.error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
   }
 
   private equality(): Expr {

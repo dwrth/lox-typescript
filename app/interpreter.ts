@@ -7,6 +7,7 @@ import type {
   Unary,
   Visitor as ExprVisitor,
   Variable,
+  Assign,
 } from "./expr";
 import { Logger } from "./logger";
 import RuntimeError from "./runtime-error";
@@ -144,6 +145,12 @@ export default class Interpreter
     }
 
     this.environment.define(stmt.name.lexeme, value);
+  }
+
+  visitAssignExpr(expr: Assign): unknown {
+    const value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
+    return value;
   }
 
   private isTruthy(value: unknown) {
