@@ -8,7 +8,7 @@ import {
   type Expr,
 } from "./expr";
 import { Logger } from "./logger";
-import { Expression, Print, Var, type Stmt } from "./stmt";
+import { Block, Expression, Print, Var, type Stmt } from "./stmt";
 import { TokenType, type Token } from "./token";
 
 class ParseError extends Error {
@@ -70,6 +70,10 @@ export class Parser {
       return result;
     }
 
+    if (this.match(TokenType.LEFT_BRACE)) {
+      return new Block(this.block());
+    }
+
     return this.expressionStatement();
   }
 
@@ -99,6 +103,17 @@ export class Parser {
     const expr: Expr = this.expression();
     this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
     return new Expression(expr);
+  }
+
+  private block(): Stmt[] {
+    const statements: Stmt[] = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      statements.push(this.declaration());
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
   }
 
   private assignment(): Expr {

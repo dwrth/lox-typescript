@@ -12,6 +12,7 @@ import type {
 import { Logger } from "./logger";
 import RuntimeError from "./runtime-error";
 import type {
+  Block,
   Expression,
   Print,
   Stmt,
@@ -127,6 +128,24 @@ export default class Interpreter
 
   private execute(stmt: Stmt): void {
     stmt.accept(this);
+  }
+
+  executeBlock(statements: Stmt[], environment: Environment) {
+    const previous = this.environment;
+
+    try {
+      this.environment = environment;
+
+      for (const statement of statements) {
+        this.execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
+  }
+
+  visitBlockStmt(stmt: Block): void {
+    this.executeBlock(stmt.statements, new Environment(this.environment));
   }
 
   visitExpressionStmt(stmt: Expression) {
