@@ -8,7 +8,7 @@ import {
   type Expr,
 } from "./expr";
 import { Logger } from "./logger";
-import { Block, Expression, Print, Var, type Stmt } from "./stmt";
+import { Block, Expression, If, Print, Var, type Stmt } from "./stmt";
 import { TokenType, type Token } from "./token";
 
 class ParseError extends Error {
@@ -65,6 +65,10 @@ export class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.IF)) {
+      return this.ifStatement();
+    }
+
     if (this.match(TokenType.PRINT)) {
       const result = this.printStatement();
       return result;
@@ -75,6 +79,20 @@ export class Parser {
     }
 
     return this.expressionStatement();
+  }
+
+  private ifStatement() {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    const condition: Expr = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+    const thenBranch: Stmt = this.statement();
+    let elseBranch: Stmt | null = null;
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement();
+    }
+
+    return new If(condition, thenBranch, elseBranch as Stmt);
   }
 
   private printStatement(): Stmt {

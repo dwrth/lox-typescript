@@ -14,6 +14,7 @@ import RuntimeError from "./runtime-error";
 import type {
   Block,
   Expression,
+  If,
   Print,
   Stmt,
   Visitor as StmtVisitor,
@@ -150,6 +151,14 @@ export default class Interpreter
 
   visitExpressionStmt(stmt: Expression) {
     this.evaluate(stmt.expression);
+  }
+
+  visitIfStmt(stmt: If): void {
+    if (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.thenBranch);
+    } else if (stmt.elseBranch !== null) {
+      this.execute(stmt.elseBranch);
+    }
   }
 
   visitPrintStmt(stmt: Print) {
