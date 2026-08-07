@@ -8,6 +8,7 @@ import type {
   Visitor as ExprVisitor,
   Variable,
   Assign,
+  Logical,
 } from "./expr";
 import { Logger } from "./logger";
 import RuntimeError from "./runtime-error";
@@ -52,6 +53,22 @@ export default class Interpreter
 
   visitLiteralExpr(expr: Literal): unknown {
     return expr.value;
+  }
+
+  visitLogicalExpr(expr: Logical): unknown {
+    const left: unknown = this.evaluate(expr.left);
+
+    if (expr.operator.type === TokenType.OR) {
+      if (this.isTruthy(left)) {
+        return left;
+      }
+    } else {
+      if (!this.isTruthy(left)) {
+        return left;
+      }
+    }
+
+    return this.evaluate(expr.right);
   }
 
   visitGroupingExpr(expr: Grouping): unknown {
