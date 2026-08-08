@@ -1,12 +1,13 @@
 import { Environment } from "./environment";
 import type Interpreter from "./interpreter";
-import type { LoxCallable } from "./lox-callable";
+import { LoxCallable } from "./lox-callable";
 import type { Callable } from "./stmt";
 
-export class LoxFunction implements LoxCallable {
+export class LoxFunction extends LoxCallable {
   private readonly declaration: Callable;
 
   constructor(declaration: Callable) {
+    super({});
     this.declaration = declaration;
   }
 

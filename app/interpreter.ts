@@ -166,6 +166,9 @@ export default class Interpreter
   visitCallExpr(expr: Call): unknown {
     const callee = this.evaluate(expr.callee);
 
+    // console.log(typeof callee);
+    // console.log(callee);
+
     const args: unknown[] = [];
     for (const arg of args) {
       args.push(this.evaluate(arg as Expr));
