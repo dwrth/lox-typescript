@@ -20,6 +20,7 @@ import type {
   Stmt,
   Visitor as StmtVisitor,
   Var,
+  While,
 } from "./stmt";
 import { Token, TokenType } from "./token";
 
@@ -190,6 +191,12 @@ export default class Interpreter
     }
 
     this.environment.define(stmt.name.lexeme, value);
+  }
+
+  visitWhileStmt(stmt: While): void {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body);
+    }
   }
 
   visitAssignExpr(expr: Assign): unknown {

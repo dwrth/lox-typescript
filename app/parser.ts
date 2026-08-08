@@ -10,7 +10,7 @@ import {
   type Expr,
 } from "./expr";
 import { Logger } from "./logger";
-import { Block, Expression, If, Print, Var, type Stmt } from "./stmt";
+import { Block, Expression, If, Print, Var, While, type Stmt } from "./stmt";
 import { TokenType, type Token } from "./token";
 
 class ParseError extends Error {
@@ -72,8 +72,11 @@ export class Parser {
     }
 
     if (this.match(TokenType.PRINT)) {
-      const result = this.printStatement();
-      return result;
+      return this.printStatement();
+    }
+
+    if (this.match(TokenType.WHILE)) {
+      return this.whileStatement();
     }
 
     if (this.match(TokenType.LEFT_BRACE)) {
@@ -117,6 +120,15 @@ export class Parser {
     this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
     // TODO: figure out how to handle null statements
     return new Var(name, initializer as Expr);
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    const condition: Expr = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+    const body: Stmt = this.statement();
+
+    return new While(condition, body);
   }
 
   private expressionStatement(): Stmt {

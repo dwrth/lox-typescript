@@ -7,6 +7,7 @@ export interface Visitor<R> {
  visitIfStmt(stmt: If): R;
  visitPrintStmt(stmt: Print): R;
  visitVarStmt(stmt: Var): R;
+ visitWhileStmt(stmt: While): R;
 }
 
 export interface Stmt {
@@ -77,5 +78,19 @@ export class Var implements Stmt {
 
  name: Token;
  initializer: Expr;
+}
+
+export class While implements Stmt {
+ constructor(condition: Expr, body: Stmt) {
+  this.condition = condition;
+  this.body = body;
+ }
+
+ accept<R>(visitor: Visitor<R>) {
+  return visitor.visitWhileStmt(this);
+ }
+
+ condition: Expr;
+ body: Stmt;
 }
 
