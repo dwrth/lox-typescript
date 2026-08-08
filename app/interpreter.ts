@@ -9,11 +9,15 @@ import type {
   Variable,
   Assign,
   Logical,
+  Call,
 } from "./expr";
 import { Logger } from "./logger";
+import { LoxCallable } from "./lox-callable";
+import { LoxFunction } from "./lox-function";
 import RuntimeError from "./runtime-error";
 import type {
   Block,
+  Callable,
   Expression,
   If,
   Print,
@@ -27,7 +31,25 @@ import { Token, TokenType } from "./token";
 export default class Interpreter
   implements ExprVisitor<unknown>, StmtVisitor<void>
 {
-  private environment: Environment = new Environment();
+  readonly globals: Environment = new Environment();
+  private environment: Environment = this.globals;
+
+  constructor() {
+    this.globals.define(
+      "clock",
+      new LoxCallable({
+        arity() {
+          return 0;
+        },
+        call(interpreter: Interpreter, args: unknown[]) {
+          return Number(Date.now()) / 1000;
+        },
+        toString() {
+          return "<native fn>";
+        },
+      }),
+    );
+  }
 
   public interpret(statements: Stmt[]) {
     try {
@@ -141,6 +163,33 @@ export default class Interpreter
     return null;
   }
 
+  visitCallExpr(expr: Call): unknown {
+    const callee = this.evaluate(expr.callee);
+
+    const args: unknown[] = [];
+    for (const arg of args) {
+      args.push(this.evaluate(arg as Expr));
+    }
+
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError(
+        expr.paren,
+        "Can only call functions and classes.",
+      );
+    }
+
+    const callable: LoxCallable = callee as LoxCallable;
+    // TODO: fix type
+    if (args.length !== (callable.arity() as unknown as number)) {
+      throw new RuntimeError(
+        expr.paren,
+        `Expected ${callable.arity()} arguments but got ${args.length}.`,
+      );
+    }
+
+    return callable.call(this, args);
+  }
+
   private evaluate(expr: Expr) {
     return expr.accept(this);
   }
@@ -169,6 +218,11 @@ export default class Interpreter
 
   visitExpressionStmt(stmt: Expression) {
     this.evaluate(stmt.expression);
+  }
+
+  visitCallableStmt(stmt: Callable): void {
+    const callable = new LoxFunction(stmt);
+    this.environment.define(stmt.name.lexeme, callable);
   }
 
   visitIfStmt(stmt: If): void {

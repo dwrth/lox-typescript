@@ -11,6 +11,7 @@ export default function generateAst(args: string[]): void {
   defineAst(outputDir, "Expr", [
     "Assign   | name: Token, value: Expr",
     "Binary   | left: Expr, operator: Token, right: Expr",
+    "Call     | callee: Expr, paren: Token, args: Expr[]",
     "Grouping | expression: Expr",
     "Literal  | value: unknown",
     "Logical  | left: Expr, operator: Token, right: Expr",
@@ -21,6 +22,7 @@ export default function generateAst(args: string[]): void {
   defineAst(outputDir, "Stmt", [
     "Block      | statements: Stmt[]",
     "Expression | expression: Expr",
+    "Callable   | name: Token, params: Token[], body: Stmt[]",
     "If         | condition: Expr, thenBranch: Stmt, elseBranch: Stmt",
     "Print      | expression: Expr",
     "Var        | name: Token, initializer: Expr",
