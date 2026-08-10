@@ -170,7 +170,7 @@ export default class Interpreter
     // console.log(callee);
 
     const args: unknown[] = [];
-    for (const arg of args) {
+    for (const arg of expr.args) {
       args.push(this.evaluate(arg as Expr));
     }
 
