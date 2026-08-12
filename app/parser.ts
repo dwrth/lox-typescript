@@ -16,6 +16,7 @@ import {
   Expression,
   If,
   Print,
+  Return,
   Var,
   While,
   type Stmt,
@@ -87,6 +88,10 @@ export class Parser {
       return this.printStatement();
     }
 
+    if (this.match(TokenType.RETURN)) {
+      return this.returnStatement()
+    }
+
     if (this.match(TokenType.WHILE)) {
       return this.whileStatement();
     }
@@ -136,6 +141,17 @@ export class Parser {
     this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
     // TODO: figure out how to handle null statements
     return new Var(name, initializer as Expr);
+  }
+
+  private returnStatement(): Stmt {
+    const keyword = this.previous();
+    let value: Expr | null = null;
+    if (!this.check(TokenType.SEMICOLON)) {
+      value = this.expression();
+    }
+
+    this.consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+    return new Return(keyword, value as Expr);
   }
 
   private whileStatement(): Stmt {

@@ -15,12 +15,14 @@ import { Logger } from "./logger";
 import { LoxCallable } from "./lox-callable";
 import { LoxFunction } from "./lox-function";
 import RuntimeError from "./runtime-error";
+import { Return as ReturnError } from "./return.ts"
 import type {
   Block,
   Callable,
   Expression,
   If,
   Print,
+  Return,
   Stmt,
   Visitor as StmtVisitor,
   Var,
@@ -29,8 +31,7 @@ import type {
 import { Token, TokenType } from "./token";
 
 export default class Interpreter
-  implements ExprVisitor<unknown>, StmtVisitor<void>
-{
+  implements ExprVisitor<unknown>, StmtVisitor<void> {
   readonly globals: Environment = new Environment();
   private environment: Environment = this.globals;
 
@@ -239,6 +240,15 @@ export default class Interpreter
   visitPrintStmt(stmt: Print) {
     const value: unknown = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
+  }
+
+  visitReturnStmt(stmt: Return): void {
+    let value: unknown = null;
+    if (stmt.value !== null) {
+      value = this.evaluate(stmt.value);
+    }
+
+    throw new ReturnError(value);
   }
 
   visitVarStmt(stmt: Var): void {

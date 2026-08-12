@@ -1,6 +1,7 @@
 import { Environment } from "./environment";
 import type Interpreter from "./interpreter";
 import { LoxCallable } from "./lox-callable";
+import { Return } from "./return";
 import type { Callable } from "./stmt";
 
 export class LoxFunction extends LoxCallable {
@@ -19,12 +20,18 @@ export class LoxFunction extends LoxCallable {
     return this.declaration.params.length;
   }
 
-  call(interpreter: Interpreter, args: unknown[]): void {
+  call(interpreter: Interpreter, args: unknown[]): unknown | null {
     const environment = new Environment(interpreter.globals);
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(this.declaration.params[i].lexeme, args[i]);
     }
 
-    interpreter.executeBlock(this.declaration.body, environment);
+    try {
+      interpreter.executeBlock(this.declaration.body, environment);
+    } catch (err) {
+      return (err as unknown as Return).value;
+    }
+
+    return null;
   }
 }

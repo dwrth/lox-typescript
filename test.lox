@@ -1,4 +1,2 @@
-fun f1(a) {
-  print a;
-}
-f1(76);
+fun foo() { return 10; }
+print foo();
