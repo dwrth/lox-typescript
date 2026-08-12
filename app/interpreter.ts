@@ -225,7 +225,7 @@ export default class Interpreter
   }
 
   visitCallableStmt(stmt: Callable): void {
-    const callable = new LoxFunction(stmt);
+    const callable = new LoxFunction(stmt, this.environment);
     this.environment.define(stmt.name.lexeme, callable);
   }
 

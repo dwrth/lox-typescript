@@ -6,9 +6,11 @@ import type { Callable } from "./stmt";
 
 export class LoxFunction extends LoxCallable {
   private readonly declaration: Callable;
+  private readonly closure: Environment;
 
-  constructor(declaration: Callable) {
+  constructor(declaration: Callable, closure: Environment) {
     super({});
+    this.closure = closure;
     this.declaration = declaration;
   }
 
@@ -21,7 +23,7 @@ export class LoxFunction extends LoxCallable {
   }
 
   call(interpreter: Interpreter, args: unknown[]): unknown | null {
-    const environment = new Environment(interpreter.globals);
+    const environment = new Environment(this.closure);
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(this.declaration.params[i].lexeme, args[i]);
     }
