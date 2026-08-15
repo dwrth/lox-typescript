@@ -5,6 +5,7 @@ import { Logger } from "./logger";
 import generateAst from "../tool/generate-ast";
 import Interpreter from "./interpreter";
 import AstPrinter from "./ast-printer";
+import { Resolver } from "./resolver";
 
 declare global {
   var hadError: boolean;
@@ -58,6 +59,8 @@ if (command === "tokenize") {
   const statements = parser.parse();
   if (!globalThis.hadError && statements.length) {
     const interpreter = new Interpreter();
+    const resolver = new Resolver(interpreter);
+    resolver.resolve(statements);
     interpreter.interpret(statements);
   }
 } else if (command === "generate_ast") {
