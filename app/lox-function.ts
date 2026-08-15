@@ -2,13 +2,13 @@ import { Environment } from "./environment";
 import type Interpreter from "./interpreter";
 import { LoxCallable } from "./lox-callable";
 import { Return } from "./return";
-import type { Callable } from "./stmt";
+import type { Funct } from "./stmt";
 
 export class LoxFunction extends LoxCallable {
-  private readonly declaration: Callable;
+  private readonly declaration: Funct;
   private readonly closure: Environment;
 
-  constructor(declaration: Callable, closure: Environment) {
+  constructor(declaration: Funct, closure: Environment) {
     super({});
     this.closure = closure;
     this.declaration = declaration;

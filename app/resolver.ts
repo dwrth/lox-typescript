@@ -14,7 +14,7 @@ import type Interpreter from "./interpreter";
 import { Logger } from "./logger";
 import type {
   Block,
-  Callable,
+  Funct,
   Expression,
   If,
   Print,
@@ -26,15 +26,15 @@ import type {
 } from "./stmt";
 import type { Token } from "./token";
 
-enum CallableType {
+enum FunctType {
   NONE,
-  CALLABLE,
+  FUNCT,
 }
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly interpreter: Interpreter;
   private readonly scopes: Map<string, boolean>[] = [];
-  private currentCallable = CallableType.NONE;
+  private currentFunct = FunctType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
@@ -73,7 +73,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturnStmt(stmt: Return) {
-    if (this.currentCallable === CallableType.NONE) {
+    if (this.currentFunct === FunctType.NONE) {
       Logger.parserError(stmt.keyword, "Can't return from top-level code.");
     }
 
@@ -84,11 +84,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     return null;
   }
 
-  visitCallableStmt(stmt: Callable) {
+  visitFunctStmt(stmt: Funct) {
     this.declare(stmt.name);
     this.define(stmt.name);
 
-    this.resolveCallable(stmt, CallableType.CALLABLE);
+    this.resolveFunct(stmt, FunctType.FUNCT);
     return null;
   }
 
@@ -171,19 +171,19 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     expr.accept(this);
   }
 
-  private resolveCallable(callable: Callable, type: CallableType) {
-    const enclosingCallable = this.currentCallable;
-    this.currentCallable = type;
+  private resolveFunct(funct: Funct, type: FunctType) {
+    const enclosingFunct = this.currentFunct;
+    this.currentFunct = type;
 
     this.beginScope();
-    for (const param of callable.params) {
+    for (const param of funct.params) {
       this.declare(param);
       this.define(param);
     }
 
-    this.resolve(callable.body);
+    this.resolve(funct.body);
     this.endScope();
-    this.currentCallable = enclosingCallable;
+    this.currentFunct = enclosingFunct;
   }
 
   private beginScope() {

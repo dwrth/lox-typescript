@@ -4,7 +4,7 @@ import type { Token } from '@/token';
 export interface Visitor<R> {
  visitBlockStmt(stmt: Block): R;
  visitExpressionStmt(stmt: Expression): R;
- visitCallableStmt(stmt: Callable): R;
+ visitFunctStmt(stmt: Funct): R;
  visitIfStmt(stmt: If): R;
  visitPrintStmt(stmt: Print): R;
  visitReturnStmt(stmt: Return): R;
@@ -40,7 +40,7 @@ export class Expression implements Stmt {
  expression: Expr;
 }
 
-export class Callable implements Stmt {
+export class Funct implements Stmt {
  constructor(name: Token, params: Token[], body: Stmt[]) {
   this.name = name;
   this.params = params;
@@ -48,7 +48,7 @@ export class Callable implements Stmt {
  }
 
  accept<R>(visitor: Visitor<R>) {
-  return visitor.visitCallableStmt(this);
+  return visitor.visitFunctStmt(this);
  }
 
  name: Token;

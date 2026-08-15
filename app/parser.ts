@@ -12,7 +12,7 @@ import {
 import { Logger } from "./logger";
 import {
   Block,
-  Callable,
+  Funct,
   Expression,
   If,
   Print,
@@ -66,7 +66,7 @@ export class Parser {
   private declaration() {
     try {
       if (this.match(TokenType.FUN)) {
-        return this.callable("function");
+        return this.funct("function");
       }
       if (this.match(TokenType.VAR)) {
         return this.varDeclaration();
@@ -89,7 +89,7 @@ export class Parser {
     }
 
     if (this.match(TokenType.RETURN)) {
-      return this.returnStatement()
+      return this.returnStatement();
     }
 
     if (this.match(TokenType.WHILE)) {
@@ -212,7 +212,7 @@ export class Parser {
     return new Expression(expr);
   }
 
-  private callable(kind: string): Callable {
+  private funct(kind: string): Funct {
     const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
 
     this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
@@ -235,7 +235,7 @@ export class Parser {
     this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
     const body = this.block();
 
-    return new Callable(name, parameters, body);
+    return new Funct(name, parameters, body);
   }
 
   private block(): Stmt[] {

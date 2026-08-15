@@ -18,8 +18,8 @@ import RuntimeError from "./runtime-error";
 import { Return as ReturnError } from "./return.ts";
 import type {
   Block,
-  Callable,
   Expression,
+  Funct,
   If,
   Print,
   Return,
@@ -192,16 +192,16 @@ export default class Interpreter
       );
     }
 
-    const callable: LoxCallable = callee as LoxCallable;
+    const funct: LoxCallable = callee as LoxCallable;
     // TODO: fix type
-    if (args.length !== (callable.arity() as unknown as number)) {
+    if (args.length !== (funct.arity() as unknown as number)) {
       throw new RuntimeError(
         expr.paren,
-        `Expected ${callable.arity()} arguments but got ${args.length}.`,
+        `Expected ${funct.arity()} arguments but got ${args.length}.`,
       );
     }
 
-    return callable.call(this, args);
+    return funct.call(this, args);
   }
 
   private evaluate(expr: Expr) {
@@ -238,9 +238,9 @@ export default class Interpreter
     this.evaluate(stmt.expression);
   }
 
-  visitCallableStmt(stmt: Callable): void {
-    const callable = new LoxFunction(stmt, this.environment);
-    this.environment.define(stmt.name.lexeme, callable);
+  visitFunctStmt(stmt: Funct): void {
+    const funct = new LoxFunction(stmt, this.environment);
+    this.environment.define(stmt.name.lexeme, funct);
   }
 
   visitIfStmt(stmt: If): void {
