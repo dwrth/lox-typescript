@@ -26,9 +26,15 @@ import type {
 } from "./stmt";
 import type { Token } from "./token";
 
+enum CallableType {
+  NONE,
+  CALLABLE,
+}
+
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly interpreter: Interpreter;
   private readonly scopes: Map<string, boolean>[] = [];
+  private currentCallable = CallableType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
@@ -67,6 +73,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturnStmt(stmt: Return) {
+    if (this.currentCallable === CallableType.NONE) {
+      Logger.parserError(stmt.keyword, "Can't return from top-level code.");
+    }
+
     if (stmt.value !== null) {
       this.resolveExpr(stmt.value);
     }
@@ -78,7 +88,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name);
     this.define(stmt.name);
 
-    this.resolveCallable(stmt);
+    this.resolveCallable(stmt, CallableType.CALLABLE);
     return null;
   }
 
@@ -161,7 +171,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     expr.accept(this);
   }
 
-  private resolveCallable(callable: Callable) {
+  private resolveCallable(callable: Callable, type: CallableType) {
+    const enclosingCallable = this.currentCallable;
+    this.currentCallable = type;
+
     this.beginScope();
     for (const param of callable.params) {
       this.declare(param);
@@ -170,6 +183,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
     this.resolve(callable.body);
     this.endScope();
+    this.currentCallable = enclosingCallable;
   }
 
   private beginScope() {
@@ -185,7 +199,15 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       return;
     }
 
-    this.scopes[this.scopes.length - 1].set(name.lexeme, false);
+    const scope = this.scopes[this.scopes.length - 1];
+    if (scope.has(name.lexeme)) {
+      Logger.parserError(
+        name,
+        "Already a variable with this name in this scope.",
+      );
+    }
+
+    scope.set(name.lexeme, false);
   }
 
   private define(name: Token) {

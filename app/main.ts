@@ -61,7 +61,9 @@ if (command === "tokenize") {
     const interpreter = new Interpreter();
     const resolver = new Resolver(interpreter);
     resolver.resolve(statements);
-    interpreter.interpret(statements);
+    if (!globalThis.hadError) {
+      interpreter.interpret(statements);
+    }
   }
 } else if (command === "generate_ast") {
   generateAst(args.slice(1));
