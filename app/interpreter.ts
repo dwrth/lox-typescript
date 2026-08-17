@@ -10,6 +10,8 @@ import type {
   Assign,
   Logical,
   Call,
+  Get,
+  Set,
 } from "./expr";
 import { Logger } from "./logger";
 import { LoxCallable } from "./lox-callable";
@@ -31,6 +33,7 @@ import type {
 } from "./stmt";
 import { Token, TokenType } from "./token";
 import { LoxClass } from "./lox-class.ts";
+import { LoxInstance } from "./lox-instance.ts";
 
 export default class Interpreter
   implements ExprVisitor<unknown>, StmtVisitor<void>
@@ -97,6 +100,18 @@ export default class Interpreter
     }
 
     return this.evaluate(expr.right);
+  }
+
+  visitSetExpr(expr: Set): unknown {
+    const object = this.evaluate(expr.object);
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.name, "Only instances have fields.");
+    }
+
+    const value = this.evaluate(expr.value);
+    object.set(expr.name, value);
+    return value;
   }
 
   visitGroupingExpr(expr: Grouping): unknown {
@@ -180,9 +195,6 @@ export default class Interpreter
   visitCallExpr(expr: Call): unknown {
     const callee = this.evaluate(expr.callee);
 
-    // console.log(typeof callee);
-    // console.log(callee);
-
     const args: unknown[] = [];
     for (const arg of expr.args) {
       args.push(this.evaluate(arg as Expr));
@@ -205,6 +217,15 @@ export default class Interpreter
     }
 
     return funct.call(this, args);
+  }
+
+  visitGetExpr(expr: Get): unknown {
+    const object = this.evaluate(expr.object);
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name);
+    }
+
+    throw new RuntimeError(expr.name, "Only instances have properties.");
   }
 
   private evaluate(expr: Expr) {

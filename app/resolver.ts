@@ -4,9 +4,11 @@ import type {
   Call,
   Expr,
   Visitor as ExprVisitor,
+  Get,
   Grouping,
   Literal,
   Logical,
+  Set,
   Unary,
   Variable,
 } from "./expr";
@@ -136,6 +138,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     return null;
   }
 
+  visitGetExpr(expr: Get) {
+    this.resolveExpr(expr.object);
+    return null;
+  }
+
   visitGroupingExpr(expr: Grouping) {
     this.resolveExpr(expr.expression);
   }
@@ -147,6 +154,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitLogicalExpr(expr: Logical) {
     this.resolveExpr(expr.left);
     this.resolveExpr(expr.right);
+    return null;
+  }
+
+  visitSetExpr(expr: Set) {
+    this.resolveExpr(expr.value);
+    this.resolveExpr(expr.object);
     return null;
   }
 

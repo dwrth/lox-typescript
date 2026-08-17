@@ -2,9 +2,11 @@ import {
   Assign,
   Binary,
   Call,
+  Get,
   Grouping,
   Literal,
   Logical,
+  Set,
   Unary,
   Variable,
   type Expr,
@@ -277,6 +279,9 @@ export class Parser {
       if (expr instanceof Variable) {
         const name = expr.name;
         return new Assign(name, value);
+      } else if (expr instanceof Get) {
+        const get = expr;
+        return new Set(get.object, get.name, value);
       }
 
       this.error(equals, "Invalid assignment target.");
@@ -400,6 +405,12 @@ export class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const name = this.consume(
+          TokenType.IDENTIFIER,
+          "Expected property name after '.'.",
+        );
+        expr = new Get(expr, name);
       } else {
         break;
       }
