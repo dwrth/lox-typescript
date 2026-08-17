@@ -260,7 +260,14 @@ export default class Interpreter
 
   visitClassStmt(stmt: Class): void {
     this.environment.define(stmt.name.lexeme, null);
-    const klass = new LoxClass(stmt.name.lexeme);
+
+    const methods: Map<string, LoxFunction> = new Map();
+    for (const method of stmt.methods) {
+      const funct = new LoxFunction(method, this.environment);
+      methods.set(method.name.lexeme, funct);
+    }
+
+    const klass = new LoxClass(stmt.name.lexeme, methods);
     this.environment.assign(stmt.name, klass);
   }
 

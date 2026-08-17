@@ -32,6 +32,7 @@ import type { Token } from "./token";
 enum FunctType {
   NONE,
   FUNCT,
+  METHOD,
 }
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
@@ -59,6 +60,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitClassStmt(stmt: Class) {
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    for (const method of stmt.methods) {
+      const declaration = FunctType.METHOD;
+      this.resolveFunct(method, declaration);
+    }
+
     return null;
   }
 

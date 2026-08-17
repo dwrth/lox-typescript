@@ -1,13 +1,24 @@
 import type Interpreter from "./interpreter";
 import { LoxCallable } from "./lox-callable";
+import type { LoxFunction } from "./lox-function";
 import { LoxInstance } from "./lox-instance";
 
 export class LoxClass extends LoxCallable {
   readonly name: string;
+  private readonly methods: Map<string, LoxFunction>;
 
-  constructor(name: string) {
+  constructor(name: string, methods: Map<string, LoxFunction>) {
     super({});
     this.name = name;
+    this.methods = methods;
+  }
+
+  findMethod(name: string) {
+    if (this.methods.has(name)) {
+      return this.methods.get(name);
+    }
+
+    return null;
   }
 
   toString() {
