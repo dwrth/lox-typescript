@@ -9,6 +9,7 @@ import type {
   Literal,
   Logical,
   Set,
+  This,
   Unary,
   Variable,
 } from "./expr";
@@ -61,10 +62,15 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name);
     this.define(stmt.name);
 
+    this.beginScope();
+    this.scopes[this.scopes.length - 1].set("this", true);
+
     for (const method of stmt.methods) {
       const declaration = FunctType.METHOD;
       this.resolveFunct(method, declaration);
     }
+
+    this.endScope();
 
     return null;
   }
@@ -167,6 +173,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetExpr(expr: Set) {
     this.resolveExpr(expr.value);
     this.resolveExpr(expr.object);
+    return null;
+  }
+
+  visitThisExpr(expr: This) {
+    this.resolveLocal(expr, expr.keyword);
     return null;
   }
 

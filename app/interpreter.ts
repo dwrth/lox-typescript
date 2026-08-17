@@ -12,6 +12,7 @@ import type {
   Call,
   Get,
   Set,
+  This,
 } from "./expr";
 import { Logger } from "./logger";
 import { LoxCallable } from "./lox-callable";
@@ -112,6 +113,10 @@ export default class Interpreter
     const value = this.evaluate(expr.value);
     object.set(expr.name, value);
     return value;
+  }
+
+  visitThisExpr(expr: This): unknown {
+    return this.lookUpVariable(expr.keyword, expr);
   }
 
   visitGroupingExpr(expr: Grouping): unknown {

@@ -8,6 +8,7 @@ export interface Visitor<R> {
  visitGroupingExpr(expr: Grouping): R;
  visitLiteralExpr(expr: Literal): R;
  visitSetExpr(expr: Set): R;
+ visitThisExpr(expr: This): R;
  visitLogicalExpr(expr: Logical): R;
  visitUnaryExpr(expr: Unary): R;
  visitVariableExpr(expr: Variable): R;
@@ -115,6 +116,18 @@ export class Set implements Expr {
  object: Expr;
  name: Token;
  value: Expr;
+}
+
+export class This implements Expr {
+ constructor(keyword: Token) {
+  this.keyword = keyword;
+ }
+
+ accept<R>(visitor: Visitor<R>) {
+  return visitor.visitThisExpr(this);
+ }
+
+ keyword: Token;
 }
 
 export class Logical implements Expr {

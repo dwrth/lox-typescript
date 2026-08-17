@@ -1,6 +1,7 @@
 import { Environment } from "./environment";
 import type Interpreter from "./interpreter";
 import { LoxCallable } from "./lox-callable";
+import type { LoxInstance } from "./lox-instance";
 import { Return } from "./return";
 import type { Funct } from "./stmt";
 
@@ -12,6 +13,12 @@ export class LoxFunction extends LoxCallable {
     super({});
     this.closure = closure;
     this.declaration = declaration;
+  }
+
+  bind(instance: LoxInstance): LoxFunction {
+    const environment = new Environment(this.closure);
+    environment.define("this", instance);
+    return new LoxFunction(this.declaration, environment);
   }
 
   toString() {
