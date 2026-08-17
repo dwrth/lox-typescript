@@ -16,7 +16,7 @@ export class LoxInstance {
     }
 
     const method = this.klass.findMethod(name.lexeme);
-    if (method !== null && method !== undefined) {
+    if (!!method) {
       return method.bind(this);
     }
 
