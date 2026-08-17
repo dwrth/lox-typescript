@@ -33,13 +33,20 @@ import type { Token } from "./token";
 enum FunctType {
   NONE,
   FUNCT,
+  INITIALIZER,
   METHOD,
+}
+
+enum ClassType {
+  NONE,
+  CLASS,
 }
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly interpreter: Interpreter;
   private readonly scopes: Map<string, boolean>[] = [];
   private currentFunct = FunctType.NONE;
+  private currentClass = ClassType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
@@ -59,6 +66,9 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: Class) {
+    const enclosingClass = this.currentClass;
+    this.currentClass = ClassType.CLASS;
+
     this.declare(stmt.name);
     this.define(stmt.name);
 
@@ -66,12 +76,17 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.scopes[this.scopes.length - 1].set("this", true);
 
     for (const method of stmt.methods) {
-      const declaration = FunctType.METHOD;
+      let declaration = FunctType.METHOD;
+      if (method.name.lexeme === "inti") {
+        declaration = FunctType.INITIALIZER;
+      }
+
       this.resolveFunct(method, declaration);
     }
 
     this.endScope();
 
+    this.currentClass = enclosingClass;
     return null;
   }
 
@@ -100,6 +115,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
 
     if (stmt.value !== null) {
+      if (this.currentFunct === FunctType.INITIALIZER) {
+        Logger.parserError(
+          stmt.keyword,
+          "Can't return a value from an initializer.",
+        );
+      }
       this.resolveExpr(stmt.value);
     }
 
@@ -177,6 +198,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitThisExpr(expr: This) {
+    if (this.currentClass === ClassType.NONE) {
+      Logger.parserError(expr.keyword, "Can't use 'this' outside of a class.");
+      return null;
+    }
+
     this.resolveLocal(expr, expr.keyword);
     return null;
   }

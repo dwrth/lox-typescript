@@ -8,17 +8,23 @@ import type { Funct } from "./stmt";
 export class LoxFunction extends LoxCallable {
   private readonly declaration: Funct;
   private readonly closure: Environment;
+  private readonly isInitializer: boolean;
 
-  constructor(declaration: Funct, closure: Environment) {
+  constructor(
+    declaration: Funct,
+    closure: Environment,
+    isInitializer: boolean,
+  ) {
     super({});
     this.closure = closure;
     this.declaration = declaration;
+    this.isInitializer = isInitializer;
   }
 
   bind(instance: LoxInstance): LoxFunction {
     const environment = new Environment(this.closure);
     environment.define("this", instance);
-    return new LoxFunction(this.declaration, environment);
+    return new LoxFunction(this.declaration, environment, this.isInitializer);
   }
 
   toString() {
@@ -38,7 +44,14 @@ export class LoxFunction extends LoxCallable {
     try {
       interpreter.executeBlock(this.declaration.body, environment);
     } catch (err) {
+      if (this.isInitializer) {
+        return this.closure.getAt(0, "this");
+      }
       return (err as unknown as Return).value;
+    }
+
+    if (this.isInitializer) {
+      return this.closure.getAt(0, "this");
     }
 
     return null;
