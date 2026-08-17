@@ -77,7 +77,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
     for (const method of stmt.methods) {
       let declaration = FunctType.METHOD;
-      if (method.name.lexeme === "inti") {
+      if (method.name.lexeme === "init") {
         declaration = FunctType.INITIALIZER;
       }
 
