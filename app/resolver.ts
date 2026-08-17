@@ -23,6 +23,7 @@ import type {
   Visitor as StmtVisitor,
   Var,
   While,
+  Class,
 } from "./stmt";
 import type { Token } from "./token";
 
@@ -50,6 +51,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.beginScope();
     this.resolve(stmt.statements);
     this.endScope();
+    return null;
+  }
+
+  visitClassStmt(stmt: Class) {
+    this.declare(stmt.name);
+    this.define(stmt.name);
     return null;
   }
 

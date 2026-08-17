@@ -3,6 +3,7 @@ import type { Token } from '@/token';
 
 export interface Visitor<R> {
  visitBlockStmt(stmt: Block): R;
+ visitClassStmt(stmt: Class): R;
  visitExpressionStmt(stmt: Expression): R;
  visitFunctStmt(stmt: Funct): R;
  visitIfStmt(stmt: If): R;
@@ -26,6 +27,20 @@ export class Block implements Stmt {
  }
 
  statements: Stmt[];
+}
+
+export class Class implements Stmt {
+ constructor(name: Token, methods: Funct[]) {
+  this.name = name;
+  this.methods = methods;
+ }
+
+ accept<R>(visitor: Visitor<R>) {
+  return visitor.visitClassStmt(this);
+ }
+
+ name: Token;
+ methods: Funct[];
 }
 
 export class Expression implements Stmt {

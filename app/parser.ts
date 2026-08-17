@@ -20,6 +20,7 @@ import {
   Var,
   While,
   type Stmt,
+  Class,
 } from "./stmt";
 import { TokenType, type Token } from "./token";
 
@@ -65,6 +66,9 @@ export class Parser {
 
   private declaration() {
     try {
+      if (this.match(TokenType.CLASS)) {
+        return this.classDeclaration();
+      }
       if (this.match(TokenType.FUN)) {
         return this.funct("function");
       }
@@ -77,6 +81,20 @@ export class Parser {
       this.synchronize();
       return null as unknown as Stmt;
     }
+  }
+
+  private classDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+    this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+    const methods: Funct[] = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      methods.push(this.funct("method"));
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+
+    return new Class(name, methods);
   }
 
   private statement(): Stmt {

@@ -18,6 +18,7 @@ import RuntimeError from "./runtime-error";
 import { Return as ReturnError } from "./return.ts";
 import type {
   Block,
+  Class,
   Expression,
   Funct,
   If,
@@ -29,9 +30,11 @@ import type {
   While,
 } from "./stmt";
 import { Token, TokenType } from "./token";
+import { LoxClass } from "./lox-class.ts";
 
 export default class Interpreter
-  implements ExprVisitor<unknown>, StmtVisitor<void> {
+  implements ExprVisitor<unknown>, StmtVisitor<void>
+{
   readonly globals: Environment = new Environment();
   private environment: Environment = this.globals;
   private readonly locals: Map<Expr, number> = new Map();
@@ -232,6 +235,12 @@ export default class Interpreter
 
   visitBlockStmt(stmt: Block): void {
     this.executeBlock(stmt.statements, new Environment(this.environment));
+  }
+
+  visitClassStmt(stmt: Class): void {
+    this.environment.define(stmt.name.lexeme, null);
+    const klass = new LoxClass(stmt.name.lexeme);
+    this.environment.assign(stmt.name, klass);
   }
 
   visitExpressionStmt(stmt: Expression) {

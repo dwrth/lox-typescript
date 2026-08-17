@@ -21,6 +21,7 @@ export default function generateAst(args: string[]): void {
 
   defineAst(outputDir, "Stmt", [
     "Block      | statements: Stmt[]",
+    "Class      | name: Token, methods: Funct[]",
     "Expression | expression: Expr",
     "Funct      | name: Token, params: Token[], body: Stmt[]",
     "If         | condition: Expr, thenBranch: Stmt, elseBranch: Stmt",

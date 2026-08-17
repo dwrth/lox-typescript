@@ -1,11 +1,11 @@
-import type { Token } from './token';
+import type { Token } from "./token";
 
 export default class RuntimeError extends Error {
- token: Token;
+  token: Token;
 
- constructor(token: Token, message?: string) {
-  super(message);
-  this.name = 'RuntimeError';
-  this.token = token;
- }
+  constructor(token: Token, message?: string) {
+    super(message);
+    this.name = "RuntimeError";
+    this.token = token;
+  }
 }
