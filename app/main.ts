@@ -61,7 +61,7 @@ if (command === "tokenize") {
     const interpreter = new Interpreter();
     const resolver = new Resolver(interpreter);
     resolver.resolve(statements);
-    if (!globalThis.hadError) {
+    if (!globalThis.hadError && !globalThis.hadRuntimeError) {
       interpreter.interpret(statements);
     }
   }
