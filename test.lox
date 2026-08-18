@@ -1,13 +1,6 @@
-var variable = "global";
-
-{
-  fun f() {
-    print variable;
+class Person {
+  sayName() {
+    print this();
   }
-
-  f();
-
-  var variable = "local";
-
-  f();
 }
+Person().sayName();
