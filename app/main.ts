@@ -1,7 +1,7 @@
-import fs from "fs";
+import fs from "node:fs";
+import { exit } from "node:process";
 import Scanner from "./scanner";
 import { Parser } from "./parser";
-import { Logger } from "./logger";
 import generateAst from "../tool/generate-ast";
 import Interpreter from "./interpreter";
 import AstPrinter from "./ast-printer";
@@ -10,52 +10,55 @@ import { Resolver } from "./resolver";
 declare global {
   var hadError: boolean;
   var hadRuntimeError: boolean;
-  var logger: Logger;
-
-  var command: "tokenize" | "parse" | "evaluate" | "generate_ast" | "run";
-  var fileName: string;
-  var fileContent: string;
 }
 
-const args: string[] = process.argv.slice(2);
+type Command = "tokenize" | "parse" | "evaluate" | "generate_ast" | "run";
 
-if (args.length < 2) {
-  console.error("Usage: ./your_program.sh tokenize <filename>");
-  process.exit(64);
+const COMMANDS: ReadonlySet<Command> = new Set([
+  "tokenize",
+  "parse",
+  "evaluate",
+  "generate_ast",
+  "run",
+]);
+
+function usage() {
+  console.error("Usage: ./your_program.sh <command> <filename>");
+  console.error("Commands: tokenize, parse, evaluate, run, generate_ast");
+  exit(64);
 }
 
-globalThis.logger = new Logger();
-globalThis.hadError = false;
-globalThis.hadRuntimeError = false;
+function readSource(filename: string): string {
+  return fs.readFileSync(filename, "utf8");
+}
 
-const command = args[0];
-const filename = args[1];
-const fileContent =
-  filename.length && command !== "generate_ast"
-    ? fs.readFileSync(filename, "utf8")
-    : "";
-
-const scanner = new Scanner(fileContent);
-const parser = new Parser(scanner.tokens);
-
-if (command === "tokenize") {
-  if (fileContent.length === 0) {
+function tokenize(source: string): void {
+  const scanner = new Scanner(source);
+  if (source.length === 0) {
     console.log("EOF  null");
   } else {
     console.log(scanner.tokens.map((t) => t.toString()).join("\n"));
   }
-} else if (command === "parse") {
+}
+
+function parse(source: string): void {
+  const parser = new Parser(new Scanner(source).tokens);
   const expr = parser.parseTokens();
   if (!globalThis.hadError && expr) {
     console.log(new AstPrinter().print(expr));
   }
-} else if (command === "evaluate") {
+}
+
+function evaluate(source: string): void {
+  const parser = new Parser(new Scanner(source).tokens);
   const expr = parser.parseTokens();
   if (!globalThis.hadError && expr !== null) {
-    const interpreter = new Interpreter();
-    interpreter.interpretExpr(expr);
+    new Interpreter().interpretExpr(expr);
   }
-} else if (command === "run") {
+}
+
+function run(source: string): void {
+  const parser = new Parser(new Scanner(source).tokens);
   const statements = parser.parse();
   if (!globalThis.hadError && statements.length) {
     const interpreter = new Interpreter();
@@ -65,15 +68,43 @@ if (command === "tokenize") {
       interpreter.interpret(statements);
     }
   }
-} else if (command === "generate_ast") {
-  generateAst(args.slice(1));
-} else {
+}
+
+const args = process.argv.slice(2);
+
+if (args.length < 2) {
+  usage();
+}
+
+globalThis.hadError = false;
+globalThis.hadRuntimeError = false;
+
+const command = args[0];
+if (!COMMANDS.has(command as Command)) {
   console.error(`Usage: Unknown command: ${command}`);
-  process.exit(1);
+  exit(1);
+}
+
+switch (command) {
+  case "tokenize":
+    tokenize(readSource(args[1]!));
+    break;
+  case "parse":
+    parse(readSource(args[1]!));
+    break;
+  case "evaluate":
+    evaluate(readSource(args[1]!));
+    break;
+  case "run":
+    run(readSource(args[1]!));
+    break;
+  case "generate_ast":
+    generateAst(args.slice(1));
+    break;
 }
 
 if (globalThis.hadError) {
-  process.exit(65);
+  exit(65);
 } else if (globalThis.hadRuntimeError) {
-  process.exit(70);
+  exit(70);
 }
