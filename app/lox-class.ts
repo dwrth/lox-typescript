@@ -19,9 +19,13 @@ export class LoxClass extends LoxCallable {
     this.methods = methods;
   }
 
-  findMethod(name: string) {
+  findMethod(name: string): LoxFunction | null {
     if (this.methods.has(name)) {
       return this.methods.get(name)!;
+    }
+
+    if (this.superclass !== null) {
+      return this.superclass.findMethod(name)!;
     }
 
     return null;
