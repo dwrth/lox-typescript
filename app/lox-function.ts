@@ -3,6 +3,7 @@ import type Interpreter from "./interpreter";
 import { LoxCallable } from "./lox-callable";
 import type { LoxInstance } from "./lox-instance";
 import { Return } from "./return";
+import RuntimeError from "./runtime-error";
 import type { Funct } from "./stmt";
 
 export class LoxFunction extends LoxCallable {
@@ -47,6 +48,11 @@ export class LoxFunction extends LoxCallable {
       if (this.isInitializer) {
         return this.closure.getAt(0, "this");
       }
+
+      if (err instanceof RuntimeError) {
+        throw err;
+      }
+
       return (err as unknown as Return).value;
     }
 

@@ -20,7 +20,6 @@ export class Logger {
   }
 
   public static runtimeError(error: RuntimeError) {
-    console.log("ruuuunn");
     // console.log(`${error.message} \n[line ${error.token.line}]`);
     globalThis.hadRuntimeError = true;
   }
