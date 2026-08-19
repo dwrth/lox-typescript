@@ -1,3 +1,4 @@
+import { constants } from "node:buffer";
 import {
   Assign,
   Binary,
@@ -25,7 +26,7 @@ import {
   type Stmt,
   Class,
 } from "./stmt";
-import { TokenType, type Token } from "./token";
+import { Token, TokenType } from "./token";
 
 class ParseError extends Error {
   constructor(message?: string) {
@@ -88,6 +89,13 @@ export class Parser {
 
   private classDeclaration(): Stmt {
     const name = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+
+    let superclass: Variable | null = null;
+    if (this.match(TokenType.LESS)) {
+      this.consume(TokenType.IDENTIFIER, "Expect superclass name.");
+      superclass = new Variable(this.previous());
+    }
+
     this.consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
 
     const methods: Funct[] = [];
@@ -97,7 +105,7 @@ export class Parser {
 
     this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
 
-    return new Class(name, methods);
+    return new Class(name, superclass as Variable, methods);
   }
 
   private statement(): Stmt {

@@ -24,7 +24,7 @@ export default function generateAst(args: string[]): void {
 
   defineAst(outputDir, "Stmt", [
     "Block      | statements: Stmt[]",
-    "Class      | name: Token, methods: Funct[]",
+    "Class      | name: Token, superclass: Variable, methods: Funct[]",
     "Expression | expression: Expr",
     "Funct      | name: Token, params: Token[], body: Stmt[]",
     "If         | condition: Expr, thenBranch: Stmt, elseBranch: Stmt",
@@ -41,7 +41,7 @@ function defineAst(outputDir: string, baseName: string, types: string[]): void {
 
   writer.on("open", () => {
     if (baseName !== "Expr") {
-      writer.write("import type { Expr } from '@/expr';\n");
+      writer.write("import type { Expr, Variable } from '@/expr';\n");
     }
     writer.write("import type { Token } from '@/token';\n\n");
 

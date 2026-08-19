@@ -5,11 +5,17 @@ import { LoxInstance } from "./lox-instance";
 
 export class LoxClass extends LoxCallable {
   readonly name: string;
+  readonly superclass: LoxClass;
   private readonly methods: Map<string, LoxFunction>;
 
-  constructor(name: string, methods: Map<string, LoxFunction>) {
+  constructor(
+    name: string,
+    superclass: LoxClass,
+    methods: Map<string, LoxFunction>,
+  ) {
     super({});
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 

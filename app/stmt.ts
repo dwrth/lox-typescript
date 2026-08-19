@@ -1,4 +1,4 @@
-import type { Expr } from '@/expr';
+import type { Expr, Variable } from '@/expr';
 import type { Token } from '@/token';
 
 export interface Visitor<R> {
@@ -30,8 +30,9 @@ export class Block implements Stmt {
 }
 
 export class Class implements Stmt {
- constructor(name: Token, methods: Funct[]) {
+ constructor(name: Token, superclass: Variable, methods: Funct[]) {
   this.name = name;
+  this.superclass = superclass;
   this.methods = methods;
  }
 
@@ -40,6 +41,7 @@ export class Class implements Stmt {
  }
 
  name: Token;
+ superclass: Variable;
  methods: Funct[];
 }
 

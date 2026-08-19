@@ -72,6 +72,20 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name);
     this.define(stmt.name);
 
+    if (
+      stmt.superclass !== null &&
+      stmt.name.lexeme === stmt.superclass.name.lexeme
+    ) {
+      Logger.parserError(
+        stmt.superclass.name,
+        "A class can't inherit from itself.",
+      );
+    }
+
+    if (stmt.superclass !== null) {
+      this.resolveExpr(stmt.superclass);
+    }
+
     this.beginScope();
     this.scopes[this.scopes.length - 1].set("this", true);
 
