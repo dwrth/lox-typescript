@@ -16,6 +16,7 @@ export default function generateAst(args: string[]): void {
     "Grouping | expression: Expr",
     "Literal  | value: unknown",
     "Set      | object: Expr, name: Token, value: Expr",
+    "Super    | keyword: Token, method: Token",
     "This     | keyword: Token",
     "Logical  | left: Expr, operator: Token, right: Expr",
     "Unary    | operator: Token, right: Expr",

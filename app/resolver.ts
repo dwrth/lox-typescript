@@ -9,6 +9,7 @@ import type {
   Literal,
   Logical,
   Set,
+  Super,
   This,
   Unary,
   Variable,
@@ -40,6 +41,7 @@ enum FunctType {
 enum ClassType {
   NONE,
   CLASS,
+  SUBCLASS,
 }
 
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
@@ -86,6 +88,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       this.resolveExpr(stmt.superclass);
     }
 
+    if (stmt.superclass !== null) {
+      this.currentClass = ClassType.SUBCLASS;
+      this.beginScope();
+      this.scopes[this.scopes.length - 1].set("super", true);
+    }
+
     this.beginScope();
     this.scopes[this.scopes.length - 1].set("this", true);
 
@@ -99,6 +107,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
 
     this.endScope();
+
+    if (stmt.superclass !== null) {
+      this.endScope();
+    }
 
     this.currentClass = enclosingClass;
     return null;
@@ -208,6 +220,19 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetExpr(expr: Set) {
     this.resolveExpr(expr.value);
     this.resolveExpr(expr.object);
+    return null;
+  }
+
+  visitSuperExpr(expr: Super) {
+    if (this.currentClass === ClassType.NONE) {
+      Logger.parserError(expr.keyword, "Can't use 'super' outside of a class.");
+    } else if (this.currentClass !== ClassType.SUBCLASS) {
+      Logger.parserError(
+        expr.keyword,
+        "Can't use 'super' in a class with no superclass.",
+      );
+    }
+    this.resolveLocal(expr, expr.keyword);
     return null;
   }
 

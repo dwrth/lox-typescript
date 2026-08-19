@@ -13,6 +13,7 @@ import type {
   Get,
   Set,
   This,
+  Super,
 } from "./expr";
 import { Logger } from "./logger";
 import { LoxCallable } from "./lox-callable";
@@ -109,6 +110,22 @@ export default class Interpreter
     const value = this.evaluate(expr.value);
     object.set(expr.name, value);
     return value;
+  }
+
+  visitSuperExpr(expr: Super) {
+    const distance = this.locals.get(expr)!;
+    const superclass = this.environment.getAt(distance, "super") as LoxClass;
+    const object = this.environment.getAt(distance - 1, "this") as LoxInstance;
+    const method = superclass.findMethod(expr.method.lexeme);
+
+    if (method === null || method === undefined) {
+      throw new RuntimeError(
+        expr.method,
+        `Undefined property '${expr.method.lexeme}'.`,
+      );
+    }
+
+    return method.bind(object);
   }
 
   visitThisExpr(expr: This): unknown {
@@ -273,6 +290,11 @@ export default class Interpreter
 
     this.environment.define(stmt.name.lexeme, null);
 
+    if (stmt.superclass !== null) {
+      this.environment = new Environment(this.environment);
+      this.environment.define("super", superclass);
+    }
+
     const methods: Map<string, LoxFunction> = new Map();
     for (const method of stmt.methods) {
       const funct = new LoxFunction(
@@ -288,6 +310,11 @@ export default class Interpreter
       superclass as LoxClass,
       methods,
     );
+
+    if (superclass !== null) {
+      this.environment = this.environment.enclosing as Environment;
+    }
+
     this.environment.assign(stmt.name, klass);
   }
 
